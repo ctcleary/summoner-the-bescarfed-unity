@@ -10,7 +10,7 @@ public interface INPC
 	void Attack (); // Attack the "AttackTarget"
 	void StopFighting (); // Resume walking.
 
-	//void BounceAgainstAlly(); // On collision with ally.
+	void BounceAgainstAlly(Collider2D other); // On collision with ally.
 	//void AvoidAlly(); // Pre-emptively avoid within trigger radius.
 
 	//void SetPursuitTarget(O pursuitTarget);

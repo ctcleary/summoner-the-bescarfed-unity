@@ -89,27 +89,36 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
 	{
-		if (other.CompareTag (OpponentTag)) {
-			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-			SetAttackTarget (opponentCombatModule);
-		
-		} else if (other.CompareTag (transform.tag)) {
-
-			if (!movementModule.IsImmovable) {
-				if (!other.Equals(null)) {
-					bounceModule.BounceAgainst(other);
-				}
-			}
-		}
+//		if (other.CompareTag (OpponentTag)) {
+//			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
+//			SetAttackTarget (opponentCombatModule);
+//		}
+//		} else if (other.CompareTag (transform.tag)) {
+//
+//			if (!movementModule.IsImmovable) {
+//				if (!other.Equals(null)) {
+//					bounceModule.BounceAgainst(other);
+//				}
+//			}
+//		}
 	}
 	
 	protected virtual void HandleTriggerStay2D(Collider2D other)
 	{
+		if (other.CompareTag (OpponentTag)) {
+			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
+			SetAttackTarget (opponentCombatModule);
+		}
 		if (other.CompareTag (transform.tag)) {
-			if (!movementModule.IsImmovable) {
-				if (!other.Equals (null)) {
-					bounceModule.BounceAgainst (other);
-				}
+			BounceAgainstAlly(other);
+		}
+	}
+
+	public virtual void BounceAgainstAlly(Collider2D other)
+	{
+		if (!movementModule.IsImmovable) {
+			if (!other.Equals (null)) {
+				bounceModule.BounceAgainst (other);
 			}
 		}
 	}

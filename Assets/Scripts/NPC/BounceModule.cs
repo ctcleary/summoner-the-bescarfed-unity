@@ -9,13 +9,13 @@ public class BounceModule : MonoBehaviour {
 	{
 		Vector3 bounceDirection = transform.position - other.transform.position;
 		Vector2 newVelocity = new Vector2 (bounceDirection.x, bounceDirection.y);
-		float xRand = Random.Range(4, 11);
+		float xRand = Random.Range(2, 6);
 		newVelocity.x += (newVelocity.x >= 0) ? xRand : -xRand;
 
 		float yRand = Random.Range(3, 6);
 		DetermineGoUp (bounceDirection);
 		newVelocity.y += (goUp == true) ? -yRand : yRand;
-		rigidbody2D.velocity = newVelocity;
+		rigidbody2D.velocity = rigidbody2D.velocity + newVelocity;
 	}
 
 	private void DetermineGoUp(Vector3 bounceDirection)
