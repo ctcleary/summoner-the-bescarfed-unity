@@ -3,14 +3,16 @@ using System.Collections;
 
 [RequireComponent (typeof(CombatModule))]
 [RequireComponent (typeof(MovementModule))]
+[RequireComponent (typeof(BounceModule))]
 [RequireComponent (typeof(Animator))]
 public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 {
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
+	protected BounceModule bounceModule;
 	protected Animator animator;
 	protected string opponentTag;
-
+	
 	protected bool isFighting = false;
 
 	// Use this for initialization
@@ -18,6 +20,7 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 	{
 		combatModule = GetComponent<CombatModule> ();
 		movementModule = GetComponent<MovementModule> ();
+		bounceModule = GetComponent<BounceModule> ();
 		animator = GetComponent<Animator> ();
 		Reset ();
 	}
@@ -53,6 +56,8 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		combatModule.SetAttackTarget (null);
 		movementModule.IsImmovable = false;
 		isFighting = false;
+
+//		AquireNewAttackTarget ();
 	}
 	
 	public virtual void Attack ()
@@ -87,6 +92,25 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		if (other.CompareTag (OpponentTag)) {
 			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
 			SetAttackTarget (opponentCombatModule);
+		
+		} else if (other.CompareTag (transform.tag)) {
+
+			if (!movementModule.IsImmovable) {
+				if (!other.Equals(null)) {
+					bounceModule.BounceAgainst(other);
+				}
+			}
+		}
+	}
+	
+	protected virtual void HandleTriggerStay2D(Collider2D other)
+	{
+		if (other.CompareTag (transform.tag)) {
+			if (!movementModule.IsImmovable) {
+				if (!other.Equals (null)) {
+					bounceModule.BounceAgainst (other);
+				}
+			}
 		}
 	}
 }

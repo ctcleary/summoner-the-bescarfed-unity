@@ -27,11 +27,14 @@ public class EnemyController : NPC, IKillable
 	{
 		Vector3 oldPosition = transform.position;
 		Camera mainCam = Camera.main;
-		float yMin = -mainCam.orthographicSize + 0.5f;
-		float yMax = mainCam.orthographicSize - 0.5f;
+		float yMin = -mainCam.orthographicSize + 1f;
+		float yMax = mainCam.orthographicSize - 1f;
 		
 		Vector3 newPosition = new Vector3 (spawnPoint.transform.position.x,
-		                                  Random.Range (yMin, yMax),
+		                                  //TEMP
+		                                  //spawnPoint.transform.position.y,
+		                                  //Random.Range (yMin, yMax),
+		                                   Random.Range(yMin+5f, yMax-5f),
 		                                  oldPosition.z);
 		
 		transform.position = newPosition;
@@ -45,6 +48,11 @@ public class EnemyController : NPC, IKillable
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		base.HandleTriggerEnter2D (other);
+	}
+
+	void OnTriggerStay2D(Collider2D other)
+	{
+		base.HandleTriggerStay2D (other);
 	}
 
 	public override void Kill ()

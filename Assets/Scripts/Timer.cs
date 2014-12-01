@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Timer : MonoBehaviour
+public class Timer
 {
 	
 	public delegate void CallbackFunc ();
@@ -10,6 +10,12 @@ public class Timer : MonoBehaviour
 	private float timeToWait;
 	private float timeWaited;
 
+	public Timer ()
+	{
+		this.timeToWait = 1;
+		timeWaited = 0;
+	}
+
 	public Timer (float timeToWait, CallbackFunc callbackFunc = null)
 	{
 		this.timeToWait = timeToWait;
@@ -17,13 +23,21 @@ public class Timer : MonoBehaviour
 		timeWaited = 0;
 	}
 
-	public IEnumerator doTimer ()
+	public IEnumerator DoTimer ()
 	{
+		timeWaited += Time.deltaTime;
 		while (timeWaited < timeToWait) {
-			timeWaited += Time.deltaTime;
 			yield return null;
 		}
 
-		callbackFunc ();
+		if (!callbackFunc.Equals (null)) {
+			callbackFunc ();
+		}
+		timeWaited = 0;
+	}
+
+	public void Reset()
+	{
+		timeWaited = 0;
 	}
 }

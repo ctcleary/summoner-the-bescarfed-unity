@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 [System.Serializable]
@@ -24,18 +25,26 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 	private float attackDmg;
 	private float attackSpd;
 	private float attackDelay;
-	//private Timer attackTimer;
+
+	// Utilities
+	private Timer.CallbackFunc attackTimerCallback;
+	private Timer attackTimer;
 
 	private bool isAlive;
 	private IDamageable attackTarget;
 
 	// Fancy shit
 	public string attackAnim;
+	protected bool isAttacking = false;
 
 	// Use this for initialization
 	void Start ()
 	{
-		animator = GetComponentInParent<Animator> ();
+		// TODO TEMP, figure out actual attack delay based on attackSpd.
+		attackTimerCallback = Attack;
+		attackTimer = new Timer (2f, attackTimerCallback);
+
+		animator = GetComponentInParent<Animator> ();	
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
@@ -56,7 +65,9 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 	void Update ()
 	{
 		if (attackTarget != null) {
-			Attack ();
+			StartCoroutine (attackTimer.DoTimer ());
+		} else {
+			attackTimer.Reset ();
 		}
 	}
 
@@ -84,13 +95,16 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 	public void Attack ()
 	{
 		if (attackTarget != null) {
-			if (attackAnim != null) {
-				animator.Play (attackAnim);
-			}
-			Invoke("DoDamage", 0.3f);
+//			if (attackAnim != null) {
+//				animator.Play (attackAnim);
+//			}
+
+			isAttacking = true;
+			animator.SetBool("isAttacking", isAttacking);
+			Invoke ("DoDamage", 0.3f);
 
 		} else {
-			Debug.Log ("attack target nullified!");
+			Debug.Log ("attack target was nullified!");
 			SetAttackTarget (null);
 		}
 	}
@@ -98,8 +112,10 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 	private void DoDamage()
 	{
 		if (attackTarget != null) {
-
 			attackTarget.Hurt (attackDmg);
+
+			isAttacking = false;
+			animator.SetBool("isAttacking", isAttacking);
 		}
 	}
 

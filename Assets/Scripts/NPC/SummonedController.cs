@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class SummonedController : NPC, IKillable {
@@ -28,6 +28,10 @@ public class SummonedController : NPC, IKillable {
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		base.HandleTriggerEnter2D (other);
+	}
+	void OnTriggerStay2D(Collider2D other)
+	{
+		base.HandleTriggerStay2D (other);
 	}
 
 	// IKillable
