@@ -19,10 +19,15 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 
 	public GameObject summonedPrefab;
 	private Transform summonedSpawnPoint;
+	private Transform summonedGroup;
+
+	private Animator anim;
+	private bool isMoving;
 
 	// Use this for initialization
 	void Start ()
 	{
+		anim = GetComponent<Animator> ();
 		health = combatProperties.health;
 		//attackDmg = combatProperties.attackDmg;
 
@@ -32,6 +37,8 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 		isOnSummonDelay = false;
 		timeSpentOnSummonDelay = 0;
 
+		GameObject summGroupGameObj = GameObject.Find ("SummonedGroup");
+		summonedGroup = summGroupGameObj.transform;
 		summonedSpawnPoint = transform.FindChild ("SummonedSpawner").transform;
 	}
 	
@@ -45,6 +52,9 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 		HandleInput ();
 
 		EnforceBounds ();
+
+		isMoving = IsMoving ();
+		anim.SetBool ("isMoving", isMoving);
 	}
 
 	private void HandleMovement ()
@@ -72,6 +82,13 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 		}
 
 		transform.localScale = newScale;
+	}
+
+	private bool IsMoving()
+	{
+		Vector2 currVelocity = rigidbody2D.velocity;
+		return currVelocity.x > 0.25 || currVelocity.x < -0.25 ||
+			   currVelocity.y > 0.25 || currVelocity.y < -0.25;
 	}
 
 	private void HandleInput ()
@@ -155,7 +172,10 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 	{
 		if (!isOnSummonDelay) {
 			isOnSummonDelay = true;
-			Instantiate (summonedPrefab, summonedSpawnPoint.position, Quaternion.identity);
+			Object newObj = Instantiate (summonedPrefab, summonedSpawnPoint.position, Quaternion.identity);
+			GameObject newSummoned = newObj as GameObject;
+
+			newSummoned.transform.parent = summonedGroup;
 		}
 	}
 }

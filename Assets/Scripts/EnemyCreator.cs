@@ -14,7 +14,10 @@ public class EnemyCreator : MonoBehaviour {
 	}
 
 	void CreateEnemy() {
-		Instantiate (enemyPrefab);
+		Object newObj = Instantiate (enemyPrefab);
+		GameObject newEnemy = newObj as GameObject;
+		newEnemy.transform.parent = transform;
+
 		Invoke("CreateEnemy", Random.Range(minDelay, maxDelay));
 	}
 	

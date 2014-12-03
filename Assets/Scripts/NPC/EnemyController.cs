@@ -34,7 +34,7 @@ public class EnemyController : NPC, IKillable
 		                                  //TEMP
 		                                  //spawnPoint.transform.position.y,
 		                                  //Random.Range (yMin, yMax),
-		                                   Random.Range(yMin+5f, yMax-5f),
+		                                   Random.Range(yMin+1f, yMax-1f),
 		                                  oldPosition.z);
 		
 		transform.position = newPosition;

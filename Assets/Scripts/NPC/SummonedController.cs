@@ -22,13 +22,12 @@ public class SummonedController : NPC, IKillable {
 	//public void SetAttackTarget(IDamageable attackTarget) {}
 	//public void Attack() {}
 
-	// IDamageable
-
 	
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		base.HandleTriggerEnter2D (other);
 	}
+
 	void OnTriggerStay2D(Collider2D other)
 	{
 		base.HandleTriggerStay2D (other);

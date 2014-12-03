@@ -36,7 +36,7 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		}
 		animator.SetBool("isFighting", isFighting);
 	}
-	
+
 	// INPC
 	public virtual void Reset ()
 	{

@@ -28,6 +28,7 @@ public class MovementModule : MonoBehaviour, INPCModule {
 			}
 
 			Move();
+			EnforceBounds ();
 			ClampVelocity ();
 		}
 	}
@@ -53,6 +54,25 @@ public class MovementModule : MonoBehaviour, INPCModule {
 			}
 		}
 		rigidbody2D.velocity = newVelocity;
+	}
+
+	private void EnforceBounds ()
+	{
+		Camera mainCam = Camera.main;
+		
+		Vector3 camPosition = mainCam.transform.position;
+		Vector3 spriteSize = renderer.bounds.size;
+		
+		float yDist = mainCam.orthographicSize;
+		float yMax = camPosition.y + yDist - spriteSize.y / 2;
+		float yMin = camPosition.y - yDist + spriteSize.y / 2;
+
+		Vector3 newPosition = transform.position;
+		if (newPosition.y > yMax || newPosition.y < yMin) {
+			newPosition.y = Mathf.Clamp (newPosition.y, yMin, yMax);
+		}
+		
+		transform.position = newPosition;
 	}
 
 	private void ClampVelocity()

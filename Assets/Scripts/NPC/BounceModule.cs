@@ -12,7 +12,7 @@ public class BounceModule : MonoBehaviour {
 		float xRand = Random.Range(2, 6);
 		newVelocity.x += (newVelocity.x >= 0) ? xRand : -xRand;
 
-		float yRand = Random.Range(3, 6);
+		float yRand = Random.Range(1, 3);
 		DetermineGoUp (bounceDirection);
 		newVelocity.y += (goUp == true) ? -yRand : yRand;
 		rigidbody2D.velocity = rigidbody2D.velocity + newVelocity;
