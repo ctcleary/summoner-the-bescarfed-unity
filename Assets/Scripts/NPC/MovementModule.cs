@@ -103,6 +103,11 @@ public class MovementModule : MonoBehaviour, INPCModule {
 		}
 	}
 
+	public Facing GetFacing()
+	{
+		return facing;
+	}
+
 	public bool IsImmovable {
 		get { return isImmovable; }
 		set { isImmovable = value; }

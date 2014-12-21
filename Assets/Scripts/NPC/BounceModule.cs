@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BounceModule : MonoBehaviour {
+public class BounceModule : MonoBehaviour, INPCModule {
 
 	private bool goUp;
 
@@ -13,12 +13,12 @@ public class BounceModule : MonoBehaviour {
 		newVelocity.x += (newVelocity.x >= 0) ? xRand : -xRand;
 
 		float yRand = Random.Range(1, 3);
-		DetermineGoUp (bounceDirection);
+		ShouldItGoUp (bounceDirection);
 		newVelocity.y += (goUp == true) ? -yRand : yRand;
 		rigidbody2D.velocity = rigidbody2D.velocity + newVelocity;
 	}
 
-	private void DetermineGoUp(Vector3 bounceDirection)
+	private void ShouldItGoUp(Vector3 bounceDirection)
 	{
 		if (bounceDirection.y != 0) {
 			goUp = (bounceDirection.y < 0);
@@ -28,7 +28,11 @@ public class BounceModule : MonoBehaviour {
 			goUp = (Random.Range (0, 2) > 0);
 		}
 	}
-
-
+	
+	// INPCModule
+	public void Reset()
+	{
+		
+	}
 
 }

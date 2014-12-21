@@ -1,36 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PursuitModule : MonoBehaviour {
+public class PursuitModule : MonoBehaviour, INPCModule {
 
-	private Collider2D visionCollider;
-	private bool hasRequiredComponents = false;
+//	private Collider2D visionCollider;
+//	private bool hasRequiredComponents = false;
+
+	public Collider2D pursuitTarget;
 
 	// Use this for initialization
 	void Start ()
 	{
-		FindVisionColliderOrDisable ();
+
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-
+		if (pursuitTarget != null) {
+			Debug.Log ("Should pursue :: " + pursuitTarget.tag);
+		}
 	}
 
-	void FindVisionColliderOrDisable()
+	// INPCModule
+	public void Reset()
 	{
-		Transform visionColliderContainer = transform.FindChild ("VisionCollider");
-		if (visionColliderContainer != null) {
-			visionCollider = visionColliderContainer.collider2D;
 
-			if (visionCollider != null) {
-				hasRequiredComponents = true;
-			}
-		}
-		
-		if (!hasRequiredComponents) {
-			this.enabled = false;
-		}
 	}
 }

@@ -4,16 +4,24 @@ using System.Collections;
 [RequireComponent (typeof(CombatModule))]
 [RequireComponent (typeof(MovementModule))]
 [RequireComponent (typeof(BounceModule))]
+[RequireComponent (typeof(PursuitModule))]
+[RequireComponent (typeof(VisionModule))]
 [RequireComponent (typeof(Animator))]
 public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 {
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
 	protected BounceModule bounceModule;
+	protected PursuitModule pursuitModule;
+	protected VisionModule visionModule;
 	protected Animator animator;
 	protected string opponentTag;
 	
 	protected bool isFighting = false;
+
+	public GameObject visionColliderPrefab;
+	private GameObject visionCollider;
+	private VisionTrigger visionTrigger;
 
 	// Use this for initialization
 	protected virtual void Start ()
@@ -21,7 +29,19 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		combatModule = GetComponent<CombatModule> ();
 		movementModule = GetComponent<MovementModule> ();
 		bounceModule = GetComponent<BounceModule> ();
+		pursuitModule = GetComponent<PursuitModule> ();
+		visionModule = GetComponent<VisionModule> ();
 		animator = GetComponent<Animator> ();
+
+		// Instantiate a VisionCollider and attach it here.
+		visionCollider = Instantiate(visionColliderPrefab, transform.position, Quaternion.identity) as GameObject;
+		visionCollider.transform.parent = transform;
+
+		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
+		visionTrigger.SetVisionModule(visionModule);
+
+		CheckDoesHaveRequiredComponents();
+
 		Reset ();
 	}
 
@@ -40,8 +60,12 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 	// INPC
 	public virtual void Reset ()
 	{
+		// All modules should implement INPCModule
 		combatModule.Reset ();
 		movementModule.Reset ();
+		bounceModule.Reset ();
+		pursuitModule.Reset ();
+		visionModule.Reset ();
 	}
 	
 	public virtual void SetAttackTarget (IDamageable attackTarget)
@@ -120,6 +144,18 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 			if (!other.Equals (null)) {
 				bounceModule.BounceAgainst (other);
 			}
+		}
+	}
+
+	private void CheckDoesHaveRequiredComponents() {
+		if (combatModule == null ||
+				movementModule == null ||
+				bounceModule == null ||
+				pursuitModule == null ||
+				visionModule == null ||
+				animator == null) {
+
+			Debug.LogError("NPC ["+this.tag+"] Does not have all required components!");
 		}
 	}
 }
