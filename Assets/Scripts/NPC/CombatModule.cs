@@ -59,6 +59,8 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 		
 		attackDmg = combatProperties.attackDmg;
 		//attackSpd = combatProperties.attackSpd;
+		
+		StopAttackAnimation();
 	}
 	
 	// Update is called once per frame
@@ -85,6 +87,9 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 		if (this.attackTarget == null || attackTarget == null) {
 			this.attackTarget = attackTarget;
 		}
+		if (attackTarget == null) {	
+			StopAttackAnimation();
+		}
 	}
 
 	public IDamageable GetAttackTarget ()
@@ -109,13 +114,19 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 		}
 	}
 
+	private void StopAttackAnimation()
+	{
+		isAttacking = false;
+		if (animator != null) {
+			animator.SetBool("isAttacking", isAttacking);
+		}
+	}
+
 	private void DoDamage()
 	{
 		if (attackTarget != null) {
 			attackTarget.Hurt (attackDmg);
-
-			isAttacking = false;
-			animator.SetBool("isAttacking", isAttacking);
+			StopAttackAnimation();
 		}
 	}
 
