@@ -44,7 +44,7 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 		}
 	}
 
-	public Vector2 GetMovementAdjustment()
+	public Vector2 GetMovementDirection()
 	{
 		Vector3 adjustment = new Vector3(0,0,0);
 		if (pursuitTarget != null) {
@@ -59,8 +59,12 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 
 	public void HandleSawOpponent(Collider2D other)
 	{
-		if (pursuitTarget == null && other.CompareTag(opponentTag)) {
-			pursuitTarget = other.transform;
+		if (other.CompareTag(opponentTag)) {
+			if (pursuitTarget == null) {
+				pursuitTarget = other.transform;
+			} else {
+				pursuitTarget = WhichIsCloser(other.transform, pursuitTarget);
+			}
 		}
 	}
 
@@ -81,6 +85,19 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 			return other.position.x > transform.position.x;
 		}
 	}
+
+	private Transform WhichIsCloser(Transform a, Transform b)
+	{
+		float distanceToA = Vector3.Distance(transform.position, a.position);
+		float distanceToB = Vector3.Distance(transform.position, b.position);
+
+		if (distanceToA < distanceToB) {
+			return a;
+		} else {
+			return b;
+		}
+	}
+
 
 	// INPCModule
 	public void Reset()

@@ -62,7 +62,7 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 			StopFighting ();
 		}
 		if (handleOpponentModule.HasAnyTargets()) {
-			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementAdjustment());
+			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementDirection());
 		} else {
 			movementModule.SetMovementAdjustment(new Vector2(0,0));
 		}
