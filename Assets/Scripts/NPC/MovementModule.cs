@@ -7,6 +7,7 @@ public class MovementModule : MonoBehaviour, INPCModule {
 
 	private float moveSpeed;
 	private Vector2 maxVelocity;
+	private Vector2 movementAdjustment;
 	private bool isImmovable = false;
 	
 	public Facing facing;
@@ -53,7 +54,21 @@ public class MovementModule : MonoBehaviour, INPCModule {
 				newVelocity.y = Mathf.Clamp(newVelocity.y, -100, 0);
 			}
 		}
+
+		newVelocity = AdjustMovement(newVelocity);
+
 		rigidbody2D.velocity = newVelocity;
+	}
+
+	public void SetMovementAdjustment(Vector2 direction) {
+		this.movementAdjustment = direction;
+	}
+
+	public Vector2 AdjustMovement(Vector2 currDeterminedVelocity)
+	{
+//		Vector2 adjusted = Vector2.MoveTowards(rigidbody2D.velocity, adjustment, 60f);
+//		this.movementAdjustment = movementAdjustment;
+		return currDeterminedVelocity + movementAdjustment;
 	}
 
 	private void EnforceBounds ()

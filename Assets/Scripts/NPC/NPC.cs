@@ -4,15 +4,24 @@ using System.Collections;
 [RequireComponent (typeof(CombatModule))]
 [RequireComponent (typeof(MovementModule))]
 [RequireComponent (typeof(BounceModule))]
-[RequireComponent (typeof(PursuitModule))]
+[RequireComponent (typeof(HandleOpponentModule))]
 [RequireComponent (typeof(VisionModule))]
 [RequireComponent (typeof(Animator))]
+
+/**
+ * The NPC class acts largely as a "Mediator" object between
+ * the various Modules that make up an NPC Entity.
+ * 
+ * It also has to handle things like changing animation states
+ * which seem coupled pretty tightly by Unity itself.
+ */
+
 public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 {
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
 	protected BounceModule bounceModule;
-	protected PursuitModule pursuitModule;
+	protected HandleOpponentModule handleOpponentModule;
 	protected VisionModule visionModule;
 	protected Animator animator;
 	protected string opponentTag;
@@ -29,7 +38,7 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		combatModule = GetComponent<CombatModule> ();
 		movementModule = GetComponent<MovementModule> ();
 		bounceModule = GetComponent<BounceModule> ();
-		pursuitModule = GetComponent<PursuitModule> ();
+		handleOpponentModule = GetComponent<HandleOpponentModule> ();
 		visionModule = GetComponent<VisionModule> ();
 		animator = GetComponent<Animator> ();
 
@@ -39,8 +48,6 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 
 		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
 		visionTrigger.SetVisionModule(visionModule);
-
-		CheckDoesHaveRequiredComponents();
 
 		Reset ();
 	}
@@ -54,6 +61,11 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
 			StopFighting ();
 		}
+		if (handleOpponentModule.HasAnyTargets()) {
+			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementAdjustment());
+		} else {
+			movementModule.SetMovementAdjustment(new Vector2(0,0));
+		}
 		animator.SetBool("isFighting", isFighting);
 	}
 
@@ -64,7 +76,7 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 		combatModule.Reset ();
 		movementModule.Reset ();
 		bounceModule.Reset ();
-		pursuitModule.Reset ();
+		handleOpponentModule.Reset ();
 		visionModule.Reset ();
 	}
 	
@@ -101,14 +113,34 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 	}
 
 	// IKillable
-	public virtual void Kill() {
+	public virtual void Kill()
+	{
 		// Should be overridden in most cases.
 		Destroy (gameObject);
 	}
 
-	public virtual string OpponentTag {
+	public virtual string OpponentTag
+	{
 		get { return opponentTag; }
 		protected set { opponentTag = value; }
+	}
+
+	public Facing GetFacing()
+	{
+		return movementModule.GetFacing ();
+	}
+
+	public virtual void HandleOnVisionEnter(Collider2D other)
+	{
+		// As long as we haven't seen an ally...
+		if (!other.CompareTag(tag)) {
+			handleOpponentModule.HandleSawOpponent(other);
+		}
+		// TODO
+		// Eventually, things like handleObstacleModule?
+		// - Or should Obstacles be also considered Opponents?
+		// - Some Obstacles will be IDamageable, and some summons
+		//   may eventually prioritize attacking obstacles.
 	}
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
@@ -144,18 +176,6 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 			if (!other.Equals (null)) {
 				bounceModule.BounceAgainst (other);
 			}
-		}
-	}
-
-	private void CheckDoesHaveRequiredComponents() {
-		if (combatModule == null ||
-				movementModule == null ||
-				bounceModule == null ||
-				pursuitModule == null ||
-				visionModule == null ||
-				animator == null) {
-
-			Debug.LogError("NPC ["+this.tag+"] Does not have all required components!");
 		}
 	}
 }
