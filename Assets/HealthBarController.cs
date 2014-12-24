@@ -48,6 +48,8 @@ public class HealthBarController : MonoBehaviour {
 		if (renderObjectBar == null) {
 			return;
 		}
+		percHealth = Mathf.Clamp (percHealth, 0f, 1f);
+
 		Vector3 newHealthScale = renderObjectBar.transform.localScale;
 		newHealthScale.x = barWidth * percHealth;
 		renderObjectBar.transform.localScale = newHealthScale;
