@@ -14,6 +14,7 @@ public class HealthBarController : MonoBehaviour {
 //	private float barHeightInWorldUnits;
 
 	private float yOffset = 1f;
+	private Facing facing = Facing.RIGHT;
 
 	private GameObject renderObjectBlack;
 	private GameObject renderObjectBar;
@@ -42,14 +43,20 @@ public class HealthBarController : MonoBehaviour {
 	void Update () {
 	}
 
-	public void UpdateHealthBar(float percHealth)
+	public void UpdateHealthBar(float percHealth, Facing newFacing)
 	{
 		if (renderObjectBar == null) {
 			return;
 		}
-		Vector3 newScale = renderObjectBar.transform.localScale;
-		newScale.x = barWidth * percHealth;
-		renderObjectBar.transform.localScale = newScale;
+		Vector3 newHealthScale = renderObjectBar.transform.localScale;
+		newHealthScale.x = barWidth * percHealth;
+		renderObjectBar.transform.localScale = newHealthScale;
+
+		if (facing != newFacing) {
+			Vector3 newContainerScale = transform.localScale;
+			newContainerScale.x = -newContainerScale.x;
+			transform.localScale = newContainerScale;
+		}
 	}
 
 	private GameObject CreateRendererObject(string name, Transform parentTransform)

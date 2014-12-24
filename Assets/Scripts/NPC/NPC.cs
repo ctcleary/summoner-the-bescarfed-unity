@@ -58,7 +58,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable
 			Kill ();
 		}
 
-		healthBarController.UpdateHealthBar(combatModule.GetPercentageOfMaxHealth());
+		healthBarController.UpdateHealthBar(combatModule.GetPercentageOfMaxHealth(), GetFacing());
 
 		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
 			StopFighting ();

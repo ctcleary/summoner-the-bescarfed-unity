@@ -55,8 +55,8 @@ public class PlayerController : Entity, IDamageable, IKillable
 
 		EnforceBounds ();
 
-//		float percHealth = health/combatProperties.health;
-//		healthBarController.UpdateHealthBar(percHealth);
+		float percHealth = health/combatProperties.health;
+		healthBarController.UpdateHealthBar(percHealth, Facing.RIGHT); // TODO implement facing checks
 
 		isMoving = IsMoving ();
 		anim.SetBool ("isMoving", isMoving);
