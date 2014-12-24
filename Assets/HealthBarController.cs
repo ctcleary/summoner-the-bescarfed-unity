@@ -40,8 +40,15 @@ public class HealthBarController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+	}
+
+	public void UpdateHealthBar(float percHealth)
+	{
+		if (renderObjectBar == null) {
+			return;
+		}
 		Vector3 newScale = renderObjectBar.transform.localScale;
-//		newScale.x = newScale.x * 0.95f; // TODO plug health percentage in here
+		newScale.x = barWidth * percHealth;
 		renderObjectBar.transform.localScale = newScale;
 	}
 

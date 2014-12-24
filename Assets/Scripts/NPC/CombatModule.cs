@@ -81,6 +81,12 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 		}
 	}
 
+	public float GetPercentageOfMaxHealth()
+	{
+		float percHealth = health / combatProperties.health;
+		return percHealth;
+	}
+
 	public void SetAttackTarget (IDamageable attackTarget)
 	{
 		// Only set if current target is `null`, or if the assignment is to `null`

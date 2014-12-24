@@ -55,6 +55,9 @@ public class PlayerController : Entity, IDamageable, IKillable
 
 		EnforceBounds ();
 
+//		float percHealth = health/combatProperties.health;
+//		healthBarController.UpdateHealthBar(percHealth);
+
 		isMoving = IsMoving ();
 		anim.SetBool ("isMoving", isMoving);
 	}
