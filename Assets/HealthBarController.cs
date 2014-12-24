@@ -53,6 +53,7 @@ public class HealthBarController : MonoBehaviour {
 		renderObjectBar.transform.localScale = newHealthScale;
 
 		if (facing != newFacing) {
+			facing = newFacing;
 			Vector3 newContainerScale = transform.localScale;
 			newContainerScale.x = -newContainerScale.x;
 			transform.localScale = newContainerScale;
