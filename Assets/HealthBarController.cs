@@ -9,17 +9,16 @@ public class HealthBarController : MonoBehaviour {
 	public Sprite red;
 	public Sprite green;
 
+	private float barWidth = 24f/16f;
+
 	private GameObject renderObjectBlack;
-	private GameObject renderObjectRed;
-	private GameObject renderObjectGreen;
+	private GameObject renderObjectBar;
 	
 	private SpriteRenderer renderBlack;
-	private SpriteRenderer renderRed;
-	private SpriteRenderer renderGreen;
+	private SpriteRenderer renderBar;
 	
 	private Transform renderTransformBlack;
-	private Transform renderTransforRed;
-	private Transform renderTransforGreen;
+	private Transform renderTransformBar;
 
 	// Use this for initialization
 	void Start () {
@@ -31,23 +30,23 @@ public class HealthBarController : MonoBehaviour {
 //		transform.parent = parentTransform;
 
 		renderObjectBlack = CreateRendererObject ("RenderObjectBlack", transform);
-		renderObjectRed = CreateRendererObject ("RenderObjectRed", transform);
-		renderObjectGreen = CreateRendererObject ("RenderObjectGreen", transform);
+		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
 		
 		renderBlack = AddRenderer (renderObjectBlack, black);
-		renderRed = AddRenderer (renderObjectRed, red);
-		renderGreen = AddRenderer (renderObjectGreen, green);
+		renderBar = AddRenderer (renderObjectBar, green);
 		
-//		renderObjectBlack.transform.position = new Vector3(0, 2.2f, 0);
-		renderObjectBlack.transform.localScale = new Vector3(24, 4, 0);
+		renderObjectBlack.transform.localPosition = new Vector3(-barWidth/2, 1.2f, -1);
+		renderObjectBlack.transform.localScale = new Vector3(24, 2, 0);
 
-//		renderObjectGreen.transform.position = new Vector3(0, 2.2f, -1);
-		renderObjectGreen.transform.localScale = new Vector3(22, 2f, 0);
+		renderObjectBar.transform.localPosition = new Vector3(-barWidth/2, 1.2f, -2);
+		renderObjectBar.transform.localScale = new Vector3(24, 2, 0);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		Vector3 newScale = renderObjectBar.transform.localScale;
+		newScale.x = newScale.x * 0.95f; // TODO plug health percentage in here
+		renderObjectBar.transform.localScale = newScale;
 	}
 
 	private GameObject CreateRendererObject(string name, Transform parentTransform)
