@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour, IDamageable, IKillable
+public class PlayerController : Entity, IDamageable, IKillable
 {
 
 	public CombatProperties combatProperties;
@@ -24,10 +24,6 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 	private Animator anim;
 	private bool isMoving;
 
-	public GameObject healthBarPrefab;
-	private GameObject healthBarInstance;
-	private HealthBarController healthBarController;
-
 	// Use this for initialization
 	void Start ()
 	{
@@ -44,17 +40,8 @@ public class PlayerController : MonoBehaviour, IDamageable, IKillable
 		GameObject summGroupGameObj = GameObject.Find ("SummonedGroup");
 		summonedGroup = summGroupGameObj.transform;
 		summonedSpawnPoint = transform.FindChild ("SummonedSpawner").transform;
-		
-		Debug.Log("transform.position 1 :: " + transform.position); 
-		Object healthBarObject = Instantiate (healthBarPrefab, transform.position, Quaternion.identity);
-		GameObject healthBarInstance = healthBarObject as GameObject;
-		
-		Debug.Log("healthBarInstance 1 :: " + healthBarInstance.transform.position); 
-		healthBarInstance.transform.parent = transform;
-//		healthBarInstance.transform.localPosition = new Vector3(0, 1.2f, 0);
-		
-		Debug.Log("healthBarInstance 2 :: " + healthBarInstance.transform.position); 
-		healthBarController = healthBarInstance.GetComponent<HealthBarController>();
+
+		AttachHealthBar(24, 3, 1.2f);
 	}
 	
 	// Update is called once per frame

@@ -6,10 +6,14 @@ public class HealthBarController : MonoBehaviour {
 	private Transform parentTransform;
 	
 	public Sprite black;
-	public Sprite red;
-	public Sprite green;
+	public Sprite healthColor;
 
-	private float barWidth = 24f/16f;
+	private float barWidth = 24f;
+	private float barHeight = 2f;
+	private float barWidthInWorldUnits;
+//	private float barHeightInWorldUnits;
+
+	private float yOffset = 1f;
 
 	private GameObject renderObjectBlack;
 	private GameObject renderObjectBar;
@@ -22,30 +26,22 @@ public class HealthBarController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-//		parentTransform = GetComponentInParent<Transform>();
-//		if (parentTransform == null) {
-//			Debug.Log ("Health bar has no parent at Start time.");
-//		}
-//
-//		transform.parent = parentTransform;
+		barWidthInWorldUnits = barWidth/16f;
+//		barHeightInWorldUnits = barHeight/16f;
 
 		renderObjectBlack = CreateRendererObject ("RenderObjectBlack", transform);
 		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
 		
 		renderBlack = AddRenderer (renderObjectBlack, black);
-		renderBar = AddRenderer (renderObjectBar, green);
-		
-		renderObjectBlack.transform.localPosition = new Vector3(-barWidth/2, 1.2f, -1);
-		renderObjectBlack.transform.localScale = new Vector3(24, 2, 0);
+		renderBar = AddRenderer (renderObjectBar, healthColor);
 
-		renderObjectBar.transform.localPosition = new Vector3(-barWidth/2, 1.2f, -2);
-		renderObjectBar.transform.localScale = new Vector3(24, 2, 0);
+		SetBarScale();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		Vector3 newScale = renderObjectBar.transform.localScale;
-		newScale.x = newScale.x * 0.95f; // TODO plug health percentage in here
+//		newScale.x = newScale.x * 0.95f; // TODO plug health percentage in here
 		renderObjectBar.transform.localScale = newScale;
 	}
 
@@ -62,6 +58,52 @@ public class HealthBarController : MonoBehaviour {
 	{
 		SpriteRenderer renderer = addToThis.AddComponent("SpriteRenderer") as SpriteRenderer;
 		renderer.sprite = sprite;
+		renderer.sortingLayerName = "UI";
 		return renderer;
+	}
+
+	public void SetColorSprite(Sprite newSprite)
+	{
+		healthColor = newSprite;
+		if (renderBar != null) {
+			renderBar.sprite = healthColor;
+		}
+	}
+
+	private void SetBarScale()
+	{
+		if (renderObjectBlack == null || renderObjectBar == null) {
+			return;
+		}
+		renderObjectBlack.transform.localPosition = new Vector3(-barWidthInWorldUnits/2, yOffset, -5);
+		renderObjectBlack.transform.localScale = new Vector3(barWidth, barHeight, 0);
+		
+		renderObjectBar.transform.localPosition = new Vector3(-barWidthInWorldUnits/2, yOffset, -6);
+		renderObjectBar.transform.localScale = new Vector3(barWidth, barHeight, 0);
+	}
+
+	public void SetBarSize(float barWidth, float barHeight)
+	{
+		SetBarWidth(barWidth);
+		SetBarHeight(barHeight);
+		SetBarScale();
+	}
+
+	public void SetBarWidth(float barWidth)
+	{
+		this.barWidth = barWidth;
+		barWidthInWorldUnits = this.barWidth/16f;
+	}
+
+	public void SetBarHeight(float barHeight)
+	{
+		this.barHeight = barHeight;
+//		barHeightInWorldUnits = this.barHeight/16f;
+	}
+
+	public void SetYOffset(float yOffset)
+	{
+		this.yOffset = yOffset;
+		SetBarScale();
 	}
 }

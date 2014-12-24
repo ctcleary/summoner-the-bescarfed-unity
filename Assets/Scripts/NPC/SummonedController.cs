@@ -7,6 +7,7 @@ public class SummonedController : NPC, IKillable {
 	protected override void Start ()
 	{
 		OpponentTag = NPCKind.ENEMY.Tag;
+		AttachHealthBar(24f, 1f, 0.5f);
 		base.Start ();
 	}
 	

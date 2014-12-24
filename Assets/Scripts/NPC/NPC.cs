@@ -16,7 +16,7 @@ using System.Collections;
  * which seem coupled pretty tightly by Unity itself.
  */
 
-public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
+public class NPC : Entity, INPC, IDamageable, IKillable
 {
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
@@ -48,7 +48,6 @@ public class NPC : MonoBehaviour, INPC, IDamageable, IKillable
 
 		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
 		visionTrigger.SetVisionModule(visionModule);
-
 		Reset ();
 	}
 
