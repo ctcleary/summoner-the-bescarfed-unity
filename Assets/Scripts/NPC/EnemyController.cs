@@ -12,7 +12,6 @@ public class EnemyController : NPC, IKillable
 		OpponentTag = NPCKind.SUMMONED.Tag;
 		AttachHealthBar(24f, 1f, 1.1f);
 		base.Start ();
-		combatModule.attackAnim = "Enemy_ZombieOrcGenie_Attack";
 
 		spawnPoint = GameObject.Find ("EnemySpawner").transform;
 		PositionAtSpawn ();

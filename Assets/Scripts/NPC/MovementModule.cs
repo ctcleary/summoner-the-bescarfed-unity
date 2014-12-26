@@ -68,7 +68,8 @@ public class MovementModule : MonoBehaviour, INPCModule {
 	{
 //		Vector2 adjusted = Vector2.MoveTowards(rigidbody2D.velocity, adjustment, 60f);
 //		this.movementAdjustment = movementAdjustment;
-		return currDeterminedVelocity + movementAdjustment;
+		Vector2 adjusted = currDeterminedVelocity + movementAdjustment;
+		return adjusted;
 	}
 
 	private void EnforceBounds ()
@@ -93,8 +94,13 @@ public class MovementModule : MonoBehaviour, INPCModule {
 	private void ClampVelocity()
 	{
 		Vector2 newVelocity = rigidbody2D.velocity;
-		newVelocity.x = Mathf.Clamp(newVelocity.x, -maxVelocity.x, maxVelocity.x);
-		newVelocity.y = Mathf.Clamp(newVelocity.y, -maxVelocity.y, maxVelocity.y);
+		if (facing == Facing.RIGHT) {
+			newVelocity.x = Mathf.Clamp (newVelocity.x, 0, maxVelocity.x);
+		} else {
+			newVelocity.x = Mathf.Clamp (newVelocity.x, -maxVelocity.x, 0);
+		}
+		newVelocity.y = Mathf.Clamp (newVelocity.y, -maxVelocity.y, maxVelocity.y);
+
 		rigidbody2D.velocity = newVelocity;
 	}
 

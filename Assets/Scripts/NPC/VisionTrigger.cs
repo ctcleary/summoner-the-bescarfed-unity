@@ -12,10 +12,14 @@ using System.Collections;
 public class VisionTrigger : MonoBehaviour {
 
 	private VisionModule visionModule;
+	private Vector2 visionScale;
 
 	public void SetVisionModule(VisionModule visionModule)
 	{
 		this.visionModule = visionModule;
+		visionScale = this.visionModule.GetVisionScale ();
+
+		transform.localScale = new Vector3 (visionScale.x, visionScale.y, transform.localScale.z);
 	}
 	
 	void OnTriggerEnter2D(Collider2D other)

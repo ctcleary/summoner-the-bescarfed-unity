@@ -14,3 +14,10 @@ public enum Facing
 	LEFT, 
 	RIGHT 
 }
+
+[System.Serializable]
+public enum HandleOpponentBehavior
+{
+	FIGHT,
+	FLEE
+}

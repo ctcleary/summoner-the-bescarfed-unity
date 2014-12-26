@@ -2,7 +2,9 @@
 using System.Collections;
 
 public class HandleOpponentModule : MonoBehaviour, INPCModule {
-	
+
+	public HandleOpponentBehavior behavior;
+
 	private NPC npcController;
 
 	private string opponentTag;
@@ -47,23 +49,41 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 	public Vector2 GetMovementDirection()
 	{
 		Vector3 adjustment = new Vector3(0,0,0);
+		if (tag.Equals (NPCKind.ENEMY)) {
+			Debug.Log (HasPursuitTarget () + " :: " + HasFleeTarget ());
+		}
 		if (pursuitTarget != null) {
 			adjustment += (pursuitTarget.position - transform.position);
 		}
 		if (fleeTarget != null) {
-//			adjustment -= (transform.position - fleeTarget.transform);
+			adjustment -= (fleeTarget.position - transform.position);
 		}
 
-		return new Vector2(adjustment.x, adjustment.y).normalized;
+		adjustment.x = Mathf.Clamp (adjustment.x, -0.25f, 0.25f);
+		Vector2 normalizedAdjustment = new Vector2 (adjustment.x, adjustment.y).normalized;
+		return normalizedAdjustment;
 	}
 
 	public void HandleSawOpponent(Collider2D other)
 	{
-		if (other.CompareTag(opponentTag)) {
-			if (pursuitTarget == null) {
-				pursuitTarget = other.transform;
-			} else {
-				pursuitTarget = WhichIsCloser(other.transform, pursuitTarget);
+		if (other.CompareTag (opponentTag)) {
+			switch (behavior) {
+			case HandleOpponentBehavior.FIGHT:
+				if (!HasPursuitTarget ()) {
+					pursuitTarget = other.transform;
+				} else {
+					pursuitTarget = WhichIsCloser (other.transform, pursuitTarget);
+				}
+				break;
+			case HandleOpponentBehavior.FLEE:
+				if (!HasFleeTarget()) {
+					fleeTarget = other.transform;
+				} else {
+					fleeTarget = WhichIsCloser (other.transform, fleeTarget);
+				}
+				break;
+			default:
+				break;
 			}
 		}
 	}
