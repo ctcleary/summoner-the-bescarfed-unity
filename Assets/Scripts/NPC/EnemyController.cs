@@ -12,10 +12,6 @@ public class EnemyController : NPC, IKillable
 		OpponentTag = NPCKind.SUMMONED.Tag;
 		AttachHealthBar(24f, 1f, 1.1f);
 		base.Start ();
-
-		spawnPoint = GameObject.Find ("EnemySpawner").transform;
-		PositionAtSpawn ();
-
 	}
 	
 	// Update is called once per frame
@@ -23,24 +19,6 @@ public class EnemyController : NPC, IKillable
 	{
 		base.Update ();
 	}
-
-	void PositionAtSpawn ()
-	{
-		Vector3 oldPosition = transform.position;
-		Camera mainCam = Camera.main;
-		float yMin = -mainCam.orthographicSize + 1f;
-		float yMax = mainCam.orthographicSize - 1f;
-		
-		Vector3 newPosition = new Vector3 (spawnPoint.transform.position.x,
-		                                  //TEMP
-		                                  //spawnPoint.transform.position.y,
-		                                  //Random.Range (yMin, yMax),
-		                                   Random.Range(yMin+1f, yMax-1f),
-		                                  oldPosition.z);
-		
-		transform.position = newPosition;
-	}
-
 	// INPC
 	//public override void Reset() {}
 	//public void SetAttackTarget(IDamageable attackTarget) {}
@@ -58,13 +36,18 @@ public class EnemyController : NPC, IKillable
 
 	public override void Kill ()
 	{
+		// TODO don't add to score if enemy hits player.
 		ScoreKeeper.addScore (1);
 		Destroy (gameObject);
 	}
 
 	void OnBecameInvisible ()
 	{
-		ScoreKeeper.loseLives (1);
+		if (combatModule.GetHealth() >= 1) {
+			// Don't lose a villageLives life if the Enemy was
+			// killed by a friendly Summoned!
+			ScoreKeeper.loseLives (1);
+		}
 		Destroy (gameObject);
 
 	}

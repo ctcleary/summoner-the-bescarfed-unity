@@ -69,7 +69,9 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 		if (attackTarget != null) {
 			StartCoroutine (attackTimer.DoTimer ());
 		} else {
-			attackTimer.Reset ();
+			if (attackTimer != null) {
+				attackTimer.Reset ();
+			}
 		}
 	}
 
@@ -89,9 +91,12 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 
 	public void SetAttackTarget (IDamageable attackTarget)
 	{
-		// Only set if current target is `null`, or if the assignment is to `null`
+		// Only set if CURRENT target is `null`, or if the assignment is TO `null`
 		if (this.attackTarget == null || attackTarget == null) {
 			this.attackTarget = attackTarget;
+			if (attackTarget != null) {
+				Attack ();
+			}
 		}
 		if (attackTarget == null) {	
 			StopAttackAnimation();
@@ -139,5 +144,10 @@ public class CombatModule : MonoBehaviour, INPCModule, IDamageable
 	public bool IsAlive ()
 	{
 		return isAlive;
+	}
+
+	public float GetHealth()
+	{
+		return health;
 	}
 }
