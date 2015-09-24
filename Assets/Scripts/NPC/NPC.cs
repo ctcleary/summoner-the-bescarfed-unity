@@ -125,7 +125,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable
 	{
 		get { return opponentTag; }
 		protected set { opponentTag = value; }
-	}
+	}	
 
 	public Facing GetFacing()
 	{

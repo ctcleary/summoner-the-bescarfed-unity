@@ -28,7 +28,6 @@ public class HealthBarController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		barWidthInWorldUnits = barWidth/16f;
-//		barHeightInWorldUnits = barHeight/16f;
 
 		renderObjectBlack = CreateRendererObject ("RenderObjectBlack", transform);
 		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
@@ -73,7 +72,7 @@ public class HealthBarController : MonoBehaviour {
 
 	private SpriteRenderer AddRenderer(GameObject addToThis, Sprite sprite)
 	{
-		SpriteRenderer renderer = addToThis.AddComponent("SpriteRenderer") as SpriteRenderer;
+		SpriteRenderer renderer = addToThis.AddComponent<SpriteRenderer>() as SpriteRenderer;
 		renderer.sprite = sprite;
 		renderer.sortingLayerName = "UI";
 		return renderer;

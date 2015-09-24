@@ -15,7 +15,7 @@ public class BounceModule : MonoBehaviour, INPCModule {
 		float yRand = Random.Range(1, 3);
 		ShouldItGoUp (bounceDirection);
 		newVelocity.y += (goUp == true) ? -yRand : yRand;
-		rigidbody2D.velocity = rigidbody2D.velocity + newVelocity;
+		GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity + newVelocity;
 	}
 
 	private void ShouldItGoUp(Vector3 bounceDirection)

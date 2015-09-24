@@ -43,21 +43,21 @@ public class MovementModule : MonoBehaviour, INPCModule {
 
 	private void Move()
 	{
-		Vector2 newVelocity = rigidbody2D.velocity;
+		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
 		newVelocity.x += moveSpeed * 0.3f;
 		if (newVelocity.y != 0) {
 			if (newVelocity.y > 0) {
-				newVelocity.y -= rigidbody2D.drag * 0.02f;
+				newVelocity.y -= GetComponent<Rigidbody2D>().drag * 0.02f;
 				newVelocity.y = Mathf.Clamp(newVelocity.y, 0, 100);
 			} else {
-				newVelocity.y += rigidbody2D.drag * 0.02f;
+				newVelocity.y += GetComponent<Rigidbody2D>().drag * 0.02f;
 				newVelocity.y = Mathf.Clamp(newVelocity.y, -100, 0);
 			}
 		}
 
 		newVelocity = AdjustMovement(newVelocity);
 
-		rigidbody2D.velocity = newVelocity;
+		GetComponent<Rigidbody2D>().velocity = newVelocity;
 	}
 
 	public void SetMovementAdjustment(Vector2 direction) {
@@ -77,7 +77,7 @@ public class MovementModule : MonoBehaviour, INPCModule {
 		Camera mainCam = Camera.main;
 		
 		Vector3 camPosition = mainCam.transform.position;
-		Vector3 spriteSize = renderer.bounds.size;
+		Vector3 spriteSize = GetComponent<Renderer>().bounds.size;
 		
 		float yDist = mainCam.orthographicSize;
 		float yMax = camPosition.y + yDist - spriteSize.y / 2;
@@ -93,7 +93,7 @@ public class MovementModule : MonoBehaviour, INPCModule {
 
 	private void ClampVelocity()
 	{
-		Vector2 newVelocity = rigidbody2D.velocity;
+		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
 		if (facing == Facing.RIGHT) {
 			newVelocity.x = Mathf.Clamp (newVelocity.x, 0, maxVelocity.x);
 		} else {
@@ -101,17 +101,17 @@ public class MovementModule : MonoBehaviour, INPCModule {
 		}
 		newVelocity.y = Mathf.Clamp (newVelocity.y, -maxVelocity.y, maxVelocity.y);
 
-		rigidbody2D.velocity = newVelocity;
+		GetComponent<Rigidbody2D>().velocity = newVelocity;
 	}
 
 	private void StopMovement()
 	{
-		rigidbody2D.velocity = new Vector2 (0, 0);
+		GetComponent<Rigidbody2D>().velocity = new Vector2 (0, 0);
 	}
 
 	private bool IsStopped()
 	{
-		return rigidbody2D.velocity.x == 0 && rigidbody2D.velocity.y == 0;
+		return GetComponent<Rigidbody2D>().velocity.x == 0 && GetComponent<Rigidbody2D>().velocity.y == 0;
 	}
 
 	private void UseFacing()

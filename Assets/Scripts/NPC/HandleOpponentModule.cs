@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class HandleOpponentModule : MonoBehaviour, INPCModule {
@@ -17,7 +17,7 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 	void Start ()
 	{
 		npcController = GetComponent<NPC>();
-//		opponentTag = npcController.OpponentTag;
+		opponentTag = npcController.OpponentTag;
 //		facing = npcController.GetFacing();
 	}
 
@@ -66,6 +66,10 @@ public class HandleOpponentModule : MonoBehaviour, INPCModule {
 
 	public void HandleSawOpponent(Collider2D other)
 	{
+		if (opponentTag == null) {
+			// Hasn't been initialized yet.
+			return;
+		}
 		if (other.CompareTag (opponentTag)) {
 			switch (behavior) {
 			case HandleOpponentBehavior.FIGHT:

@@ -24,6 +24,9 @@ public class PlayerController : Entity, IDamageable, IKillable
 	private Animator anim;
 	private bool isMoving;
 
+	private float movementGrowRate = 0.2f;
+	private float movementDecayRate = 0.8f;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -65,24 +68,30 @@ public class PlayerController : Entity, IDamageable, IKillable
 	private void HandleMovement ()
 	{
 		// HANDLE MOVEMENT
-		Vector2 newVelocity = rigidbody2D.velocity;
+		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
+		Vector2 velocityIncrease = new Vector2 (0, 0);
 		
 		if (Input.GetAxis ("Horizontal") != 0) {
-			newVelocity.x += moveSpeed * Input.GetAxis ("Horizontal");
-			newVelocity.x = Mathf.Clamp (newVelocity.x, -maxVelocity.x, maxVelocity.x);
+			velocityIncrease.x += moveSpeed * Input.GetAxis ("Horizontal");
+		} else if (newVelocity.x != 0) {
+			newVelocity.x -= newVelocity.x * movementDecayRate;
 		}
 		
 		if (Input.GetAxis ("Vertical") != 0) {
-			newVelocity.y += moveSpeed * Input.GetAxis ("Vertical");
-			newVelocity.y = Mathf.Clamp (newVelocity.y, -maxVelocity.y, maxVelocity.y);
+			velocityIncrease.y += moveSpeed * Input.GetAxis ("Vertical");
+		} else if (newVelocity.y != 0) {
+			newVelocity.y -= newVelocity.y * movementDecayRate;
 		}
-		rigidbody2D.velocity = newVelocity;
+		newVelocity += velocityIncrease * movementGrowRate;
+		newVelocity.x = Mathf.Clamp (newVelocity.x, -maxVelocity.x, maxVelocity.x);
+		newVelocity.y = Mathf.Clamp (newVelocity.y, -maxVelocity.y, maxVelocity.y);
+		GetComponent<Rigidbody2D>().velocity = newVelocity;
 
 		// HANDLE FLIPPING
 		Vector3 newScale = transform.localScale;
-		if (rigidbody2D.velocity.x < 0 && newScale.x != -1) {
+		if (GetComponent<Rigidbody2D>().velocity.x < 0 && newScale.x != -1) {
 			newScale.x = -1;
-		} else if (rigidbody2D.velocity.x > 0 && newScale.x != 1) {
+		} else if (GetComponent<Rigidbody2D>().velocity.x > 0 && newScale.x != 1) {
 			newScale.x = 1;
 		}
 
@@ -91,7 +100,7 @@ public class PlayerController : Entity, IDamageable, IKillable
 
 	private bool IsMoving()
 	{
-		Vector2 currVelocity = rigidbody2D.velocity;
+		Vector2 currVelocity = GetComponent<Rigidbody2D>().velocity;
 		return currVelocity.x > 0.25 || currVelocity.x < -0.25 ||
 			   currVelocity.y > 0.25 || currVelocity.y < -0.25;
 	}
@@ -123,7 +132,7 @@ public class PlayerController : Entity, IDamageable, IKillable
 		float orthoSize = mainCam.orthographicSize;
 		
 		Vector3 camPosition = mainCam.transform.position;
-		Vector3 spriteSize = renderer.bounds.size;
+		Vector3 spriteSize = GetComponent<Renderer>().bounds.size;
 
 		float xDist = orthoSize * aspect;
 		float xMax = camPosition.x + xDist - spriteSize.x / 2;
