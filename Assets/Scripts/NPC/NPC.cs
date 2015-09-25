@@ -16,8 +16,10 @@ using System.Collections;
  * which seem coupled pretty tightly by Unity itself.
  */
 
-public class NPC : Entity, INPC, IDamageable, IKillable
+public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 {
+	protected MessageBus NPCMessageBus = new MessageBus ();
+
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
 	protected BounceModule bounceModule;
@@ -35,6 +37,8 @@ public class NPC : Entity, INPC, IDamageable, IKillable
 	// Use this for initialization
 	protected virtual void Start ()
 	{
+		NPCMessageBus.AddMessageListener (EntityMessage.Collided, this);
+
 		combatModule = GetComponent<CombatModule> ();
 		movementModule = GetComponent<MovementModule> ();
 		bounceModule = GetComponent<BounceModule> ();
@@ -132,6 +136,11 @@ public class NPC : Entity, INPC, IDamageable, IKillable
 		return movementModule.GetFacing ();
 	}
 
+	// IMessageHandler
+	public virtual void HandleMessage(Message message) {
+		Debug.Log ("Received message of type: " + message.MessageType);
+	}
+
 	public virtual void HandleOnVisionEnter(Collider2D other)
 	{
 		// As long as we haven't seen an ally...
@@ -147,6 +156,9 @@ public class NPC : Entity, INPC, IDamageable, IKillable
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
 	{
+		Message CollideMessage = new Message ();
+		CollideMessage.MessageType = EntityMessage.Collided;
+		NPCMessageBus.TriggerMessage (CollideMessage);
 //		if (other.CompareTag (OpponentTag)) {
 //			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
 //			SetAttackTarget (opponentCombatModule);
