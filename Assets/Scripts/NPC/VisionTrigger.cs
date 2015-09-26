@@ -14,9 +14,9 @@ public class VisionTrigger : MonoBehaviour {
 	private VisionModule visionModule;
 	private Vector2 visionScale;
 
-	public void SetVisionModule(VisionModule visionModule)
+	public void SetVisionModule(NPCModule visionModule)
 	{
-		this.visionModule = visionModule;
+		this.visionModule = (VisionModule)visionModule;
 		visionScale = this.visionModule.GetVisionScale ();
 
 		transform.localScale = new Vector3 (visionScale.x, visionScale.y, transform.localScale.z);

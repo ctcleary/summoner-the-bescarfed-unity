@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent (typeof(CombatModule))]
 [RequireComponent (typeof(MovementModule))]
@@ -20,14 +21,24 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 {
 	protected MessageBus NPCMessageBus = new MessageBus ();
 
+	protected Dictionary<string, NPCModule> Modules;
+	protected Dictionary<string, string> NPCModuleTypes = new Dictionary<string, string> ()
+	{
+		{ "Combat", "CombatModule" },
+		{ "Movement", "MovementModule" },
+		{ "Bounce", "BounceModule" },
+		{ "HandleOpponent", "HandleOpponentModule" },
+		{ "Vision", "VisionModule" }
+	};
+
 	protected CombatModule combatModule;
 	protected MovementModule movementModule;
 	protected BounceModule bounceModule;
 	protected HandleOpponentModule handleOpponentModule;
 	protected VisionModule visionModule;
 	protected Animator animator;
+
 	protected string opponentTag;
-	
 	protected bool isFighting = false;
 
 	public GameObject visionColliderPrefab;
@@ -39,20 +50,31 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	{
 		NPCMessageBus.AddMessageListener (EntityMessage.Collided, this);
 
-		combatModule = GetComponent<CombatModule> ();
-		movementModule = GetComponent<MovementModule> ();
-		bounceModule = GetComponent<BounceModule> ();
-		handleOpponentModule = GetComponent<HandleOpponentModule> ();
-		visionModule = GetComponent<VisionModule> ();
-		animator = GetComponent<Animator> ();
+		Modules = new Dictionary<string, NPCModule> ();
+		foreach (KeyValuePair<string, string> entry in NPCModuleTypes) {
+			Modules.Add (entry.Key, (NPCModule)GetComponent(entry.Value));
+		};
+		
+		combatModule = (CombatModule)Modules["Combat"];
+		movementModule = (MovementModule)Modules["Movement"];
+		bounceModule = (BounceModule)Modules["Bounce"];
+		handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
+		visionModule = (VisionModule)Modules["Vision"];
+
+		animator = GetComponent<Animator>();
 
 		// Instantiate a VisionCollider and attach it here.
 		visionCollider = Instantiate(visionColliderPrefab, transform.position, Quaternion.identity) as GameObject;
 		visionCollider.transform.parent = transform;
 
 		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
-		visionTrigger.SetVisionModule(visionModule);
+		visionTrigger.SetVisionModule(Modules["Vision"]);
 		Reset ();
+	}
+
+	public MessageBus MessageBus {
+		get { return NPCMessageBus; }
+		private set { return; }
 	}
 
 	// Update is called once per frame
@@ -79,11 +101,14 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	public virtual void Reset ()
 	{
 		// All modules should implement INPCModule
-		combatModule.Reset ();
-		movementModule.Reset ();
-		bounceModule.Reset ();
-		handleOpponentModule.Reset ();
-		visionModule.Reset ();
+		foreach (NPCModule module in Modules.Values) {
+			 module.Reset();
+		}
+//		combatModule.Reset ();
+//		movementModule.Reset ();
+//		bounceModule.Reset ();
+//		handleOpponentModule.Reset ();
+//		visionModule.Reset ();
 	}
 	
 	public virtual void SetAttackTarget (IDamageable attackTarget)
@@ -139,6 +164,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// IMessageHandler
 	public virtual void HandleMessage(Message message) {
 		Debug.Log ("Received message of type: " + message.MessageType);
+		Debug.Log ("messageGameObject: " + message.GameObjectValue);
 	}
 
 	public virtual void HandleOnVisionEnter(Collider2D other)
@@ -156,9 +182,12 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
 	{
-		Message CollideMessage = new Message ();
-		CollideMessage.MessageType = EntityMessage.Collided;
-		NPCMessageBus.TriggerMessage (CollideMessage);
+		if (other.CompareTag(OpponentTag)) {
+			Message CollideMessage = new Message ();
+			CollideMessage.MessageType = EntityMessage.Collided;
+			CollideMessage.GameObjectValue = other.gameObject;
+			NPCMessageBus.TriggerMessage (CollideMessage);
+		}
 //		if (other.CompareTag (OpponentTag)) {
 //			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
 //			SetAttackTarget (opponentCombatModule);
