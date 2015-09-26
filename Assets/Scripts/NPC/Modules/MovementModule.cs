@@ -11,6 +11,7 @@ public class MovementModule : NPCModule, INPCModule {
 	private bool isImmovable = false;
 	
 	public Facing facing;
+	private int facingFactor = 1;
 	
 	// Use this for initialization
 	public override void Start ()
@@ -18,6 +19,9 @@ public class MovementModule : NPCModule, INPCModule {
 		base.Start ();
 		Reset ();
 		UseFacing ();
+		if (GetFacing () == Facing.LEFT) {
+			facingFactor = -1;
+		}
 	}
 	
 	// Update is called once per frame
@@ -47,7 +51,7 @@ public class MovementModule : NPCModule, INPCModule {
 	private void Move()
 	{
 		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
-		newVelocity.x += moveSpeed * 0.3f;
+		newVelocity.x += (moveSpeed * 0.3f) * facingFactor;
 		if (newVelocity.y != 0) {
 			if (newVelocity.y > 0) {
 				newVelocity.y -= GetComponent<Rigidbody2D>().drag * 0.02f;
