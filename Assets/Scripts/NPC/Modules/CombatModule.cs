@@ -82,6 +82,10 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	{
 		health -= dmgTaken;
 		if (health <= 0) {
+			Message DeathMessage = new Message();
+			DeathMessage.MessageType = EntityMessage.Died;
+			MessageBus.TriggerMessage(DeathMessage);
+
 			isAlive = false;
 		}
 	}

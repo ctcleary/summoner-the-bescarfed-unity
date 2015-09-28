@@ -41,18 +41,16 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	protected string opponentTag;
 	protected bool isFighting = false;
 
-	public GameObject visionColliderPrefab;
-	private GameObject visionCollider;
-	private VisionTrigger visionTrigger;
-
 	// Use this for initialization
 	protected virtual void Start ()
 	{
+		NPCMessageBus.AddMessageListener (EntityMessage.Died, this);
 		NPCMessageBus.AddMessageListener (EntityMessage.Collided, this);
 
 		Modules = new Dictionary<string, NPCModule> ();
 		foreach (KeyValuePair<string, string> entry in NPCModuleTypes) {
-			Modules.Add (entry.Key, (NPCModule)GetComponent(entry.Value));
+			NPCModule module = (NPCModule)GetComponent(entry.Value);
+			Modules.Add (entry.Key, module);
 		};
 		
 		combatModule = (CombatModule)Modules["Combat"];
@@ -63,12 +61,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 
 		animator = GetComponent<Animator>();
 
-		// Instantiate a VisionCollider and attach it here.
-		visionCollider = Instantiate(visionColliderPrefab, transform.position, Quaternion.identity) as GameObject;
-		visionCollider.transform.parent = transform;
-
-		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
-		visionTrigger.SetVisionModule(Modules["Vision"]);
 		Reset ();
 	}
 
@@ -76,14 +68,21 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		get { return NPCMessageBus; }
 		private set { return; }
 	}
+	
+	// IMessageHandler
+	public virtual void HandleMessage(Message message) {
+		//Debug.Log ("Received message of type: " + message.MessageType);
+		//Debug.Log ("messageGameObject: " + message.GameObjectValue);
+		switch (message.MessageType) {
+		case EntityMessage.Died:
+			this.Kill();
+			break;
+		}
+	}
 
 	// Update is called once per frame
 	protected virtual void Update ()
 	{
-		if (!combatModule.IsAlive()) {
-			Kill ();
-		}
-
 		healthBarController.UpdateHealthBar(combatModule.GetPercentageOfMaxHealth(), GetFacing());
 
 		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
@@ -159,12 +158,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	public Facing GetFacing()
 	{
 		return movementModule.GetFacing ();
-	}
-
-	// IMessageHandler
-	public virtual void HandleMessage(Message message) {
-		//Debug.Log ("Received message of type: " + message.MessageType);
-		//Debug.Log ("messageGameObject: " + message.GameObjectValue);
 	}
 
 	public virtual void HandleOnVisionEnter(Collider2D other)

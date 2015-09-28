@@ -13,8 +13,8 @@ public abstract class NPCModule : MonoBehaviour
 	}
 
 	public MessageBus MessageBus {
-		private get { return messageBus; }
-		set { this.messageBus = value; }
+		get { return messageBus; }
+		private set { this.messageBus = value; }
 	}
 
 	public abstract void Reset();

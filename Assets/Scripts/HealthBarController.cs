@@ -19,7 +19,7 @@ public class HealthBarController : MonoBehaviour {
 	private GameObject renderObjectBlack;
 	private GameObject renderObjectBar;
 	
-	//private SpriteRenderer renderBlack;
+	private SpriteRenderer renderBlack;
 	private SpriteRenderer renderBar;
 	
 	private Transform renderTransformBlack;
@@ -32,7 +32,7 @@ public class HealthBarController : MonoBehaviour {
 		renderObjectBlack = CreateRendererObject ("RenderObjectBlack", transform);
 		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
 		
-		//renderBlack = AddRenderer (renderObjectBlack, black);
+		renderBlack = AddRenderer (renderObjectBlack, black);
 		renderBar = AddRenderer (renderObjectBar, healthColor);
 
 		SetBarScale();
