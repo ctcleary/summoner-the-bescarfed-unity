@@ -163,8 +163,8 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 
 	// IMessageHandler
 	public virtual void HandleMessage(Message message) {
-		Debug.Log ("Received message of type: " + message.MessageType);
-		Debug.Log ("messageGameObject: " + message.GameObjectValue);
+		//Debug.Log ("Received message of type: " + message.MessageType);
+		//Debug.Log ("messageGameObject: " + message.GameObjectValue);
 	}
 
 	public virtual void HandleOnVisionEnter(Collider2D other)

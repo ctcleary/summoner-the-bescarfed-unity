@@ -5,17 +5,17 @@ public class SummonedController : NPC, IKillable {
 
 	// Use this for initialization
 	protected override void Start ()
-	{
-		OpponentTag = NPCKind.ENEMY.Tag;
+    {
+        base.Start();
+        OpponentTag = NPCKind.ENEMY.Tag;
 		AttachHealthBar(24f, 1f, 0.5f);
-		base.Start ();
-	}
+        combatModule.attackAnim = "Summoned_ClawDemon_Attack";
+    }
 	
 	// Update is called once per frame
 	protected override void Update ()
-	{
-		base.Update ();
-		combatModule.attackAnim = "Summoned_ClawDemon_Attack";
+    {
+        base.Update ();
 	}
 
 	// INPC
