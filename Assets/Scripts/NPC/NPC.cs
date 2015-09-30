@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent (typeof(CombatModule))]
@@ -13,8 +12,8 @@ using System.Collections.Generic;
  * The NPC class acts largely as a "Mediator" object between
  * the various Modules that make up an NPC Entity.
  * 
- * It also has to handle things like changing animation states
- * which seem coupled pretty tightly by Unity itself.
+ * TODO / IN PROGRESS:
+ * Rework NPC to use the MessageBus object for all inter-component communication.
  */
 
 public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
@@ -44,27 +43,37 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// Use this for initialization
 	protected virtual void Start ()
 	{
-		NPCMessageBus.AddMessageListener (EntityMessage.Died, this);
-		NPCMessageBus.AddMessageListener (EntityMessage.Collided, this);
+        Listen();
 
-		Modules = new Dictionary<string, NPCModule> ();
-		foreach (KeyValuePair<string, string> entry in NPCModuleTypes) {
-			NPCModule module = (NPCModule)GetComponent(entry.Value);
-			Modules.Add (entry.Key, module);
-		};
-		
-		combatModule = (CombatModule)Modules["Combat"];
-		movementModule = (MovementModule)Modules["Movement"];
-		bounceModule = (BounceModule)Modules["Bounce"];
-		handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
-		visionModule = (VisionModule)Modules["Vision"];
+        GetModules();
 
 		animator = GetComponent<Animator>();
 
 		Reset ();
 	}
 
-	public MessageBus MessageBus {
+    protected void Listen()
+    {
+        NPCMessageBus.AddMessageListener(EntityMessage.Died, this);
+        NPCMessageBus.AddMessageListener(EntityMessage.Collided, this);
+    }
+    protected void GetModules()
+    {
+        Modules = new Dictionary<string, NPCModule>();
+        foreach (KeyValuePair<string, string> entry in NPCModuleTypes)
+        {
+            NPCModule module = (NPCModule)GetComponent(entry.Value);
+            Modules.Add(entry.Key, module);
+        };
+
+        combatModule = (CombatModule)Modules["Combat"];
+        movementModule = (MovementModule)Modules["Movement"];
+        bounceModule = (BounceModule)Modules["Bounce"];
+        handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
+        visionModule = (VisionModule)Modules["Vision"];
+    }
+
+    public MessageBus MessageBus {
 		get { return NPCMessageBus; }
 		private set { return; }
 	}
@@ -99,15 +108,10 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// INPC
 	public virtual void Reset ()
 	{
-		// All modules should implement INPCModule
+		// All modules should inherit NPCModule abstract base class.
 		foreach (NPCModule module in Modules.Values) {
 			 module.Reset();
 		}
-//		combatModule.Reset ();
-//		movementModule.Reset ();
-//		bounceModule.Reset ();
-//		handleOpponentModule.Reset ();
-//		visionModule.Reset ();
 	}
 	
 	public virtual void SetAttackTarget (IDamageable attackTarget)
@@ -145,7 +149,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// IKillable
 	public virtual void Kill()
 	{
-		// Should be overridden in most cases.
+		// Should be overridden in most cases. e.g. object pooling
 		Destroy (gameObject);
 	}
 

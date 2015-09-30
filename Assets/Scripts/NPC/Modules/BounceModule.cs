@@ -10,7 +10,18 @@ public class BounceModule : NPCModule, INPCModule {
 		base.Start ();
 	}
 
-	public void BounceAgainst(Collider2D other)
+    // Implement NPCModule abstracts
+    protected override void Listen()
+    {
+
+    }
+
+    public override void HandleMessage(Message message)
+    {
+
+    }
+
+    public void BounceAgainst(Collider2D other)
 	{
 		Vector3 bounceDirection = transform.position - other.transform.position;
 		Vector2 newVelocity = new Vector2 (bounceDirection.x, bounceDirection.y);

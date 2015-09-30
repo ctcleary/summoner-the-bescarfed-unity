@@ -50,9 +50,19 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
-	
-	// Implement Abstract
-	public override void Reset()
+    
+    // Implement NPCModule abstracts
+    protected override void Listen()
+    {
+
+    }
+
+    public override void HandleMessage(Message message)
+    {
+
+    }
+
+    public override void Reset()
 	{
 		isAlive = true;
 		

@@ -27,16 +27,32 @@ public class VisionModule : NPCModule {
 
 		npcController = GetComponent<NPC>();
 	}
-	
-//	// Update is called once per frame
-//	void Update () {
-//	
-//	}
-	
-	// Called by the "VisionTrigger"
-	public void HandleOnTriggerEnter2D(Collider2D other)
+
+    // Implement NPCModule abstracts
+    protected override void Listen()
+    {
+
+    }
+
+    public override void HandleMessage(Message message)
+    {
+
+    }
+
+    //	// Update is called once per frame
+    //	void Update () {
+    //	
+    //	}
+
+    // Called by the "VisionTrigger"
+    public void HandleOnTriggerEnter2D(Collider2D other)
 	{
-		npcController.HandleOnVisionEnter(other);
+        Message VisionEnterMessage = new Message();
+        VisionEnterMessage.MessageType = EntityMessage.VisionEnter;
+        VisionEnterMessage.GameObjectValue = other.gameObject;
+        MessageBus.TriggerMessage(VisionEnterMessage);
+		
+        //npcController.HandleOnVisionEnter(other);
 	}
 
 	public Vector2 GetVisionScale()

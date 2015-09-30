@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class MessageBus
 {
+    // TODO allow multiple MessageBus types by allowing different
+    //      messages enums to be configured.
 	private EntityMessage[] EntityMessages;
 	private Dictionary<EntityMessage, List<Action<Message>>> MessageMap;
 

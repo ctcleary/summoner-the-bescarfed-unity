@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class HandleOpponentModule : NPCModule, INPCModule {
 
@@ -22,7 +23,18 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 //		facing = npcController.GetFacing();
 	}
 
-	public bool HasAnyTargets()
+    // Implement NPCModule abstracts
+    protected override void Listen()
+    {
+        MessageBus.AddMessageListener(EntityMessage.VisionEnter, (IMessageHandler)this);
+    }
+
+    public override void HandleMessage(Message message)
+    {
+
+    }
+
+    public bool HasAnyTargets()
 	{
 		return HasPursuitTarget() || HasFleeTarget();
 	}

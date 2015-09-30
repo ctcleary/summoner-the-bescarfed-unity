@@ -23,9 +23,20 @@ public class MovementModule : NPCModule, INPCModule {
 			facingFactor = -1;
 		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Implement NPCModule abstracts
+    protected override void Listen()
+    {
+
+    }
+
+    public override void HandleMessage(Message message)
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update () {
 		if (isImmovable) {
 			StopMovement ();
 

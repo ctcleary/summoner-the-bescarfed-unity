@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class NPCModule : MonoBehaviour
+public abstract class NPCModule : MonoBehaviour, IMessageHandler
 {
 	private NPC NPCGameObject;
 	private MessageBus messageBus;
@@ -18,5 +18,7 @@ public abstract class NPCModule : MonoBehaviour
 	}
 
 	public abstract void Reset();
+    public abstract void HandleMessage(Message message);
+    protected abstract void Listen();
 }
 
