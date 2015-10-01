@@ -98,9 +98,19 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 
 			isAlive = false;
 		}
+
+        SendHealthUpdateMessage();
 	}
 
-	public float GetPercentageOfMaxHealth()
+    private void SendHealthUpdateMessage()
+    {
+        Message healthUpdateMessage = new Message();
+        healthUpdateMessage.MessageType = EntityMessage.HealthUpdate;
+        healthUpdateMessage.FloatValue = GetPercentageOfMaxHealth();
+        MessageBus.TriggerMessage(healthUpdateMessage);
+    }
+
+    private float GetPercentageOfMaxHealth()
 	{
 		if (combatProperties.health == 0) {
 			return 0;

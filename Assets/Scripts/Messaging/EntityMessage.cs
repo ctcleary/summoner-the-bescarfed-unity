@@ -10,9 +10,11 @@ public enum EntityMessage
 	
 	FightEngaged,
 	Damaged,
+    Healed,
 	FightResolved,
 
 	Spawned,
+    HealthUpdate,
 	Died,
 	Respawned
 }

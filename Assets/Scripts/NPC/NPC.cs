@@ -56,6 +56,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
     {
         NPCMessageBus.AddMessageListener(EntityMessage.Died, this);
         NPCMessageBus.AddMessageListener(EntityMessage.Collided, this);
+        NPCMessageBus.AddMessageListener(EntityMessage.HealthUpdate, this);
     }
     protected void GetModules()
     {
@@ -83,16 +84,22 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		//Debug.Log ("Received message of type: " + message.MessageType);
 		//Debug.Log ("messageGameObject: " + message.GameObjectValue);
 		switch (message.MessageType) {
-		case EntityMessage.Died:
-			this.Kill();
-			break;
+		    case EntityMessage.Died:
+			    this.Kill();
+			    break;
+            case EntityMessage.HealthUpdate:
+                this.UpdateHealthBar(message.FloatValue);
+                break;
 		}
 	}
+    private void UpdateHealthBar(float percHealth)
+    {
+        healthBarController.UpdateHealthBar(percHealth, GetFacing());
+    }
 
-	// Update is called once per frame
-	protected virtual void Update ()
+    // Update is called once per frame
+    protected virtual void Update ()
 	{
-		healthBarController.UpdateHealthBar(combatModule.GetPercentageOfMaxHealth(), GetFacing());
 
 		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
 			StopFighting ();
