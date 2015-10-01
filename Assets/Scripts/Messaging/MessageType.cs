@@ -1,14 +1,18 @@
 using UnityEngine;
 
-public enum EntityMessage
+public enum MessageType
 {
 	NONE,
 
+    // NPC Messages
+    OpponentsChange,
 	VisionEnter,
 
 	Collided,
+    Faced,
 	
 	FightEngaged,
+    Attacking,
 	Damaged,
     Healed,
 	FightResolved,

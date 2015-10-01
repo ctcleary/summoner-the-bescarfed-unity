@@ -22,8 +22,8 @@ public class HealthBarController : MonoBehaviour {
 	private SpriteRenderer renderBlack;
 	private SpriteRenderer renderBar;
 	
-	private Transform renderTransformBlack;
-	private Transform renderTransformBar;
+	//private Transform renderTransformBlack;
+	//private Transform renderTransformBar;
 
 	// Use this for initialization
 	void Start () {
@@ -33,7 +33,7 @@ public class HealthBarController : MonoBehaviour {
 		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
 		
 		renderBlack = AddRenderer (renderObjectBlack, black);
-		renderBar = AddRenderer (renderObjectBar, healthColor);
+        renderBar = AddRenderer (renderObjectBar, healthColor);
 
 		SetBarScale();
 	}
@@ -42,7 +42,7 @@ public class HealthBarController : MonoBehaviour {
 	void Update () {
 	}
 
-	public void UpdateHealthBar(float percHealth, Facing newFacing)
+	public void UpdateHealthBar(float percHealth)
 	{
 		if (renderObjectBar == null) {
 			return;
@@ -53,12 +53,9 @@ public class HealthBarController : MonoBehaviour {
 		newHealthScale.x = barWidth * percHealth;
 		renderObjectBar.transform.localScale = newHealthScale;
 
-		if (facing != newFacing) {
-			facing = newFacing;
-			Vector3 newContainerScale = transform.localScale;
-			newContainerScale.x = -newContainerScale.x;
-			transform.localScale = newContainerScale;
-		}
+		//if (facing != newFacing) {
+		//	facing = newFacing;
+		//}
 	}
 
 	private GameObject CreateRendererObject(string name, Transform parentTransform)
@@ -77,6 +74,17 @@ public class HealthBarController : MonoBehaviour {
 		renderer.sortingLayerName = "UI";
 		return renderer;
 	}
+
+    public void SetFacing(Facing facing)
+    {
+        if (facing != this.facing) {
+            this.facing = facing;
+
+            Vector3 newContainerScale = transform.localScale;
+            newContainerScale.x = -newContainerScale.x;
+            transform.localScale = newContainerScale;
+        }
+    }
 
 	public void SetColorSprite(Sprite newSprite)
 	{

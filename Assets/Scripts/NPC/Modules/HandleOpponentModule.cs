@@ -5,11 +5,7 @@ using System;
 public class HandleOpponentModule : NPCModule, INPCModule {
 
 	public HandleOpponentBehavior behavior;
-
-	private NPC npcController;
-
-	private string opponentTag;
-	private Facing facing;
+	private Facing facing = Facing.RIGHT;
 
 	private Transform pursuitTarget;
 	private Transform fleeTarget;
@@ -18,20 +14,40 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	public override void Start ()
 	{
 		base.Start ();
-		npcController = GetComponent<NPC>();
-		opponentTag = npcController.OpponentTag;
-//		facing = npcController.GetFacing();
 	}
 
     // Implement NPCModule abstracts
     protected override void Listen()
     {
-        MessageBus.AddMessageListener(EntityMessage.VisionEnter, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.VisionEnter, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.Faced, (IMessageHandler)this);
     }
 
     public override void HandleMessage(Message message)
     {
+        switch (message.MessageType)
+        {
+            case MessageType.OpponentsChange:
+                HandleOpponentsChangeMessage(message);
+                break;
+            case MessageType.Faced:
+                HandleFacedMessage(message);
+                break;
+            case MessageType.VisionEnter:
+                HandleVisionEnterMessage(message);
+                break;
+        }
+    }
 
+    private void HandleOpponentsChangeMessage(Message message)
+    {
+        OpponentTag = message.NPCKindValue.Tag;
+    }
+
+    private void HandleFacedMessage(Message message)
+    {
+        facing = message.FacingValue;
     }
 
     public bool HasAnyTargets()
@@ -51,8 +67,7 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	// Update is called once per frame
 	void Update ()
 	{
-		opponentTag = npcController.OpponentTag;
-		facing = npcController.GetFacing();
+		//facing = npcController.GetFacing();
 
 		if (HasAnyTargets()) {
 			DetermineLoseTargets();
@@ -77,13 +92,10 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 		return normalizedAdjustment;
 	}
 
-	public void HandleSawOpponent(Collider2D other)
+	public void HandleVisionEnterMessage(Message visionEnterMessage)
 	{
-		if (opponentTag == null) {
-			// Hasn't been initialized yet.
-			return;
-		}
-		if (other.CompareTag (opponentTag)) {
+        GameObject other = visionEnterMessage.GameObjectValue;
+		if (other.CompareTag (OpponentTag)) {
 			switch (behavior) {
 			case HandleOpponentBehavior.FIGHT:
 				if (!HasPursuitTarget ()) {

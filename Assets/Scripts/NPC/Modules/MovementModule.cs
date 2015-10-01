@@ -21,8 +21,9 @@ public class MovementModule : NPCModule, INPCModule {
 		UseFacing ();
 		if (GetFacing () == Facing.LEFT) {
 			facingFactor = -1;
-		}
-	}
+        }
+        NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
+    }
 
     // Implement NPCModule abstracts
     protected override void Listen()

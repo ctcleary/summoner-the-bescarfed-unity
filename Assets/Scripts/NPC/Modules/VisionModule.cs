@@ -6,7 +6,7 @@ public class VisionModule : NPCModule {
 	public float yScale = 1.0f;
 	public float xScale = 1.0f;
 
-	private NPC npcController;
+	//private NPC npcController;
 
 	
 	public GameObject visionColliderPrefab;
@@ -24,8 +24,6 @@ public class VisionModule : NPCModule {
 		
 		visionColliderController = visionCollider.GetComponent<VisionColliderController> ();
 		visionColliderController.SetVisionModule (this);
-
-		npcController = GetComponent<NPC>();
 	}
 
     // Implement NPCModule abstracts
@@ -39,21 +37,17 @@ public class VisionModule : NPCModule {
 
     }
 
-    //	// Update is called once per frame
-    //	void Update () {
-    //	
-    //	}
-
     // Called by the "VisionTrigger"
     public void HandleOnTriggerEnter2D(Collider2D other)
 	{
-        Message VisionEnterMessage = new Message();
-        VisionEnterMessage.MessageType = EntityMessage.VisionEnter;
-        VisionEnterMessage.GameObjectValue = other.gameObject;
-        MessageBus.TriggerMessage(VisionEnterMessage);
-		
-        //npcController.HandleOnVisionEnter(other);
+        TriggerVisionEnterMessage(other);
 	}
+
+    private void TriggerVisionEnterMessage(Collider2D other)
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildGameObjectMessage(MessageType.VisionEnter, other.gameObject));
+    }
 
 	public Vector2 GetVisionScale()
 	{

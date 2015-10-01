@@ -6,15 +6,15 @@ public class MessageBus
 {
     // TODO allow multiple MessageBus types by allowing different
     //      messages enums to be configured.
-	private EntityMessage[] EntityMessages;
-	private Dictionary<EntityMessage, List<Action<Message>>> MessageMap;
+	private MessageType[] MessageTypes;
+	private Dictionary<MessageType, List<Action<Message>>> MessageMap;
 
 	public MessageBus ()
 	{
-		MessageMap = new Dictionary<EntityMessage, List<Action<Message>>> ();
+		MessageMap = new Dictionary<MessageType, List<Action<Message>>> ();
 	}
 
-	public void AddMessageListener (EntityMessage messageType, IMessageHandler handlerObject)
+	public void AddMessageListener (MessageType messageType, IMessageHandler handlerObject)
 	{
 		if (!MessageMap.ContainsKey (messageType)) {
 			MessageMap[messageType] = new List<Action<Message>>();
@@ -25,7 +25,7 @@ public class MessageBus
 	}
 
 	public void TriggerMessage(Message message) {
-		EntityMessage messageType = message.MessageType;
+		MessageType messageType = message.MessageType;
 		if (MessageMap.ContainsKey(messageType)) {
 			List<Action<Message>> Listeners = MessageMap [messageType];
 			Listeners.ForEach (delegate(Action<Message> action) {

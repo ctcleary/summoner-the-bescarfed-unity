@@ -10,6 +10,9 @@ public class EnemyController : NPC, IKillable
 	protected override void Start ()
 	{
 		OpponentTag = NPCKind.SUMMONED.Tag;
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildNPCKindValueMessage(MessageType.OpponentsChange, NPCKind.SUMMONED));
+
 		AttachHealthBar(24f, 1f, 1.1f);
 		base.Start ();
 	}

@@ -15,7 +15,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 {
 	
 	public CombatProperties combatProperties;
-	private Animator animator;
+	//private Animator animator;
 
 	// Health and Defense props
 	private float health;
@@ -46,7 +46,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		attackTimerCallback = Attack;
 		attackTimer = new Timer (2f, attackTimerCallback);
 
-		animator = GetComponentInParent<Animator> ();	
+		//animator = GetComponentInParent<Animator> ();	
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
@@ -72,8 +72,6 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		
 		attackDmg = combatProperties.attackDmg;
 		//attackSpd = combatProperties.attackSpd;
-		
-		StopAttackAnimation();
 	}
 	
 	// Update is called once per frame
@@ -92,11 +90,9 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	{
 		health -= dmgTaken;
 		if (health <= 0) {
-			Message DeathMessage = new Message();
-			DeathMessage.MessageType = EntityMessage.Died;
-			MessageBus.TriggerMessage(DeathMessage);
+            NPCMessageBus.TriggerMessage(MessageBuilder.BuildMessage(MessageType.Died));
 
-			isAlive = false;
+            isAlive = false;
 		}
 
         SendHealthUpdateMessage();
@@ -104,10 +100,8 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 
     private void SendHealthUpdateMessage()
     {
-        Message healthUpdateMessage = new Message();
-        healthUpdateMessage.MessageType = EntityMessage.HealthUpdate;
-        healthUpdateMessage.FloatValue = GetPercentageOfMaxHealth();
-        MessageBus.TriggerMessage(healthUpdateMessage);
+        NPCMessageBus.TriggerMessage(MessageBuilder
+            .BuildFloatMessage(MessageType.HealthUpdate, GetPercentageOfMaxHealth()));
     }
 
     private float GetPercentageOfMaxHealth()
@@ -141,29 +135,28 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	public void Attack ()
 	{
 		if (attackTarget != null) {
-//			if (attackAnim != null) {
-//				animator.Play (attackAnim);
-//			}
-
 			isAttacking = true;
-			animator.SetBool("isAttacking", isAttacking);
-			Invoke ("DoDamage", 0.3f);
+            NPCMessageBus.TriggerMessage(CreateAttackingMessage(true));
+            Invoke("DoDamage", 0.3f);
 
 		} else {
 			Debug.Log ("attack target was nullified!");
 			SetAttackTarget (null);
 		}
 	}
+    private Message CreateAttackingMessage(bool isAttacking)
+    {
+        Message attackMessage = MessageBuilder.BuildBoolMessage(MessageType.Attacking, isAttacking);
+        return attackMessage;
+    }
 
-	private void StopAttackAnimation()
+    private void StopAttackAnimation()
 	{
 		isAttacking = false;
-		if (animator != null) {
-			animator.SetBool("isAttacking", isAttacking);
-		}
-	}
+        NPCMessageBus.TriggerMessage(CreateAttackingMessage(false));
+    }
 
-	private void DoDamage()
+    private void DoDamage()
 	{
 		if (attackTarget != null) {
 			attackTarget.Hurt (attackDmg);
