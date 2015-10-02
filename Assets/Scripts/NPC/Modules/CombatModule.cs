@@ -77,14 +77,14 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	// Update is called once per frame
 	void Update ()
 	{
-		if (attackTarget != null) {
-			StartCoroutine (attackTimer.DoTimer ());
-		} else {
-			if (attackTimer != null) {
+        if (attackTimer != null) {
+		    if (attackTarget != null) {
+			    StartCoroutine (attackTimer.DoTimer ());
+		    } else {
 				attackTimer.Reset ();
-			}
-		}
-	}
+		    }
+        }
+    }
 
 	public void Hurt (float dmgTaken)
 	{

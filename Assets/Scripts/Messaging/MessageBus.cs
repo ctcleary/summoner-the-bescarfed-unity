@@ -22,15 +22,17 @@ public class MessageBus
 
 		List<Action<Message>> HandlerList = MessageMap [messageType];
 		HandlerList.Add (handlerObject.HandleMessage);
-	}
+    }
 
 	public void TriggerMessage(Message message) {
+        int numTriggered = 0;
 		MessageType messageType = message.MessageType;
 		if (MessageMap.ContainsKey(messageType)) {
 			List<Action<Message>> Listeners = MessageMap [messageType];
+            Debug.Log(messageType + " has " + Listeners.Count + " Listeners");
 			Listeners.ForEach (delegate(Action<Message> action) {
 				action (message);
-			});
+            });
 		}
 	}
 }

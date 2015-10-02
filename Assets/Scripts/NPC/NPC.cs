@@ -47,10 +47,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 
         GetModules();
 		animator = GetComponent<Animator>();
-        if (!animator.isInitialized)
-        {
-            Debug.LogWarning("Animator failed to initialize");
-        }
 		Reset ();
 	}
 
@@ -125,10 +121,14 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
     }
     private void HandleAttackingMessage(Message attackingMessage)
     {
-        animator.SetBool("isAttacking", attackingMessage.BoolValue);
+        if (animator.isInitialized)
+        {
+            animator.SetBool("isAttacking", attackingMessage.BoolValue);
+        }
     }
     private void HandleFacedMessage(Message facedMessage)
     {
+        Debug.Log(gameObject.name + " NPC script handled facing message " + facedMessage.FacingValue);
         healthBarController.SetFacing(facedMessage.FacingValue);
     }
     private void HandleFightEngagedMessage(Message fightEngagedMessage)

@@ -46,7 +46,8 @@ public class VisionModule : NPCModule {
     private void TriggerVisionEnterMessage(Collider2D other)
     {
         NPCMessageBus.TriggerMessage(
-            MessageBuilder.BuildGameObjectMessage(MessageType.VisionEnter, other.gameObject));
+            MessageBuilder.BuildGameObjectMessage(
+                MessageType.VisionEnter, other.gameObject));
     }
 
 	public Vector2 GetVisionScale()
@@ -56,7 +57,8 @@ public class VisionModule : NPCModule {
 	
 	// INPCModule
 	public override void Reset()
-	{
-		
-	}
+    {
+        visionColliderController = null;
+        visionCollider = null;
+    }
 }

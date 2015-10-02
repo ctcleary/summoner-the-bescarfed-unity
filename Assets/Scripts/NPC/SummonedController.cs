@@ -10,7 +10,8 @@ public class SummonedController : NPC, IKillable {
         OpponentTag = NPCKind.ENEMY.Tag;
 
         NPCMessageBus.TriggerMessage(
-            MessageBuilder.BuildNPCKindValueMessage(MessageType.OpponentsChange, NPCKind.ENEMY));
+            MessageBuilder.BuildNPCKindValueMessage(
+                MessageType.OpponentsChange, NPCKind.ENEMY));
 
         AttachHealthBar(24f, 1f, 0.5f);
         combatModule.attackAnim = "Summoned_ClawDemon_Attack";

@@ -22,6 +22,7 @@ public class MovementModule : NPCModule, INPCModule {
 		if (GetFacing () == Facing.LEFT) {
 			facingFactor = -1;
         }
+        //Debug.Log(gameObject.name + " MovementModule tried to set facing " + facing);
         NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
     }
 
@@ -73,10 +74,10 @@ public class MovementModule : NPCModule, INPCModule {
 				newVelocity.y = Mathf.Clamp(newVelocity.y, -100, 0);
 			}
 		}
+        
+        Vector2 adjustedVelocity = AdjustMovement(newVelocity);
 
-		newVelocity = AdjustMovement(newVelocity);
-
-		GetComponent<Rigidbody2D>().velocity = newVelocity;
+		GetComponent<Rigidbody2D>().velocity = adjustedVelocity;
 	}
 
 	public void SetMovementAdjustment(Vector2 direction) {

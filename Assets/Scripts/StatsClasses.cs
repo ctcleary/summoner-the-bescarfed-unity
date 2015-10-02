@@ -19,5 +19,6 @@ public enum Facing
 public enum HandleOpponentBehavior
 {
 	FIGHT,
-	FLEE
+	FLEE,
+    IGNORE
 }
