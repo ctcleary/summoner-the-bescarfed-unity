@@ -1,4 +1,0 @@
-* text=auto
-
-*.cs text eol=crlf
-*.cs.meta eol=crlf
