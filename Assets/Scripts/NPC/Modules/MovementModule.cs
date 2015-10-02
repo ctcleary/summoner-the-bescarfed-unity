@@ -37,6 +37,13 @@ public class MovementModule : NPCModule, INPCModule {
 
     }
 
+    // TEMP
+    public void SetFacing()
+    {
+        Debug.Log("SetFacing");
+        NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
+    }
+
     // Update is called once per frame
     void Update () {
 		if (isImmovable) {

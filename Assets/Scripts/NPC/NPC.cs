@@ -64,6 +64,10 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
         bounceModule = (BounceModule)Modules["Bounce"];
         handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
         visionModule = (VisionModule)Modules["Vision"];
+
+        // TODO TEMP
+        // LOOKS LIKE SOME RACE CONDITIONS / initialization happening out of order.
+        //movementModule.SetFacing();
     }
 
     public MessageBus MessageBus {
@@ -128,7 +132,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
     }
     private void HandleFacedMessage(Message facedMessage)
     {
-        Debug.Log(gameObject.name + " NPC script handled facing message " + facedMessage.FacingValue);
         healthBarController.SetFacing(facedMessage.FacingValue);
     }
     private void HandleFightEngagedMessage(Message fightEngagedMessage)

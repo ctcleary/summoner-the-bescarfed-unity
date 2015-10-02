@@ -7,31 +7,37 @@ public class MessageBus
     // TODO allow multiple MessageBus types by allowing different
     //      messages enums to be configured.
 	private MessageType[] MessageTypes;
-	private Dictionary<MessageType, List<Action<Message>>> MessageMap;
+	private Dictionary<MessageType, List<IMessageHandler>> MessageMap;
 
 	public MessageBus ()
 	{
-		MessageMap = new Dictionary<MessageType, List<Action<Message>>> ();
+		MessageMap = new Dictionary<MessageType, List<IMessageHandler>> ();
 	}
 
 	public void AddMessageListener (MessageType messageType, IMessageHandler handlerObject)
 	{
 		if (!MessageMap.ContainsKey (messageType)) {
-			MessageMap[messageType] = new List<Action<Message>>();
+			MessageMap[messageType] = new List<IMessageHandler>();
 		}
 
-		List<Action<Message>> HandlerList = MessageMap [messageType];
-		HandlerList.Add (handlerObject.HandleMessage);
+		MessageMap [messageType].Add (handlerObject);
+        //if (MessageMap[messageType].Count > 1)
+        //{
+        //    Debug.Log(messageType + " Has more than 1 listener object!");
+        //}
     }
 
 	public void TriggerMessage(Message message) {
-        int numTriggered = 0;
 		MessageType messageType = message.MessageType;
 		if (MessageMap.ContainsKey(messageType)) {
-			List<Action<Message>> Listeners = MessageMap [messageType];
-            Debug.Log(messageType + " has " + Listeners.Count + " Listeners");
-			Listeners.ForEach (delegate(Action<Message> action) {
-				action (message);
+			List<IMessageHandler> Listeners = MessageMap [messageType];
+            //if (Listeners.Count > 1)
+            //{
+            //    Debug.Log(messageType + " has " + Listeners.Count + " Listeners");
+            //}
+			Listeners.ForEach (delegate(IMessageHandler handlerObject) {
+                //Debug.Log("Triggering : " + messageType + " on " + handlerObject.GetType());
+                handlerObject.HandleMessage(message);
             });
 		}
 	}

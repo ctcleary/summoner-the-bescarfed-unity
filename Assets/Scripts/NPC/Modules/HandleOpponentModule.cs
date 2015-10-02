@@ -130,10 +130,11 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
 	private bool IsBehindMe(Transform other)
 	{
-        if (gameObject.CompareTag(NPCKind.ENEMY.Tag))
-        {
-            Debug.Log(gameObject.name + " is facing " + facing);
-        }
+        // TODO this is the problem, facing not being set properly.
+        //if (gameObject.CompareTag(NPCKind.ENEMY.Tag))
+        //{
+        //    Debug.Log(gameObject.name + " is facing " + facing);
+        //}
 		if (facing == Facing.RIGHT) {
 			return other.position.x < transform.position.x;
 		} else {
