@@ -64,10 +64,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
         bounceModule = (BounceModule)Modules["Bounce"];
         handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
         visionModule = (VisionModule)Modules["Vision"];
-
-        // TODO TEMP
-        // LOOKS LIKE SOME RACE CONDITIONS / initialization happening out of order.
-        //movementModule.SetFacing();
     }
 
     public MessageBus MessageBus {

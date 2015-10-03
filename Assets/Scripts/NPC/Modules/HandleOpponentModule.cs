@@ -26,7 +26,6 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
     public override void HandleMessage(Message message)
     {
-        //Debug.Log(gameObject.name + " incoming mesage " + message.MessageType);
         switch (message.MessageType)
         {
             case MessageType.OpponentsChange:
@@ -48,7 +47,6 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
     private void HandleFacedMessage(Message message)
     {
-        Debug.Log(gameObject.name + " HandleOpponent set facing : " + message.FacingValue);
         facing = message.FacingValue;
     }
 
@@ -79,9 +77,6 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	public Vector2 GetMovementDirection()
 	{
 		Vector3 adjustment = new Vector3(0,0,0);
-		//if (gameObject.CompareTag (NPCKind.ENEMY.Tag)) {
-		//	Debug.Log ( gameObject.name + " :: Pursuing? " + HasPursuitTarget () + " :: Fleeing? " + HasFleeTarget ());
-		//}
 		if (pursuitTarget != null) {
 			adjustment += (pursuitTarget.position - transform.position);
 		}
@@ -130,12 +125,7 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
 	private bool IsBehindMe(Transform other)
 	{
-        // TODO this is the problem, facing not being set properly.
-        //if (gameObject.CompareTag(NPCKind.ENEMY.Tag))
-        //{
-        //    Debug.Log(gameObject.name + " is facing " + facing);
-        //}
-		if (facing == Facing.RIGHT) {
+        if (facing == Facing.RIGHT) {
 			return other.position.x < transform.position.x;
 		} else {
 			return other.position.x > transform.position.x;

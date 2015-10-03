@@ -14,15 +14,14 @@ public class MovementModule : NPCModule, INPCModule {
 	private int facingFactor = 1;
 	
 	// Use this for initialization
+    public void Awake()
+    {
+        InitFacing();
+    }
 	public override void Start ()
 	{
 		base.Start ();
 		Reset ();
-		UseFacing ();
-		if (GetFacing () == Facing.LEFT) {
-			facingFactor = -1;
-        }
-        //Debug.Log(gameObject.name + " MovementModule tried to set facing " + facing);
         NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
     }
 
@@ -35,13 +34,6 @@ public class MovementModule : NPCModule, INPCModule {
     public override void HandleMessage(Message message)
     {
 
-    }
-
-    // TEMP
-    public void SetFacing()
-    {
-        Debug.Log("SetFacing");
-        NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
     }
 
     // Update is called once per frame
@@ -141,7 +133,15 @@ public class MovementModule : NPCModule, INPCModule {
 		return GetComponent<Rigidbody2D>().velocity.x == 0 && GetComponent<Rigidbody2D>().velocity.y == 0;
 	}
 
-	private void UseFacing()
+    private void InitFacing()
+    {
+        UseFacing();
+        if (GetFacing() == Facing.LEFT)
+        {
+            facingFactor = -1;
+        }
+    }
+    private void UseFacing()
 	{
 		if (facing == Facing.LEFT)
 		{
