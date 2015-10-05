@@ -28,13 +28,62 @@ public class MovementModule : NPCModule, INPCModule {
     // Implement NPCModule abstracts
     protected override void Listen()
     {
-
+        NPCMessageBus.AddMessageListener(MessageType.TargetAcquired, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.MovementAdjustment, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.TargetLost, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.FightEngaged, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.FightResolved, (IMessageHandler)this);
     }
 
     public override void HandleMessage(Message message)
     {
+        switch (message.MessageType)
+        {
+            case MessageType.TargetAcquired:
+                HandleTargetAcquired(message);
+                break;
+            case MessageType.MovementAdjustment:
+                HandleMovementAdjustment(message);
+                break;
+            case MessageType.TargetLost:
+                HandleTargetLost(message);
+                break;
+            case MessageType.FightEngaged:
+                HandleFightEngaged(message);
+                break;
+            case MessageType.FightResolved:
+                HandleFightResolved(message);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void HandleTargetAcquired(Message message)
+    {
 
     }
+
+    private void HandleMovementAdjustment(Message message)
+    {
+        SetMovementAdjustment(message.Vector2Value);
+    }
+
+    private void HandleTargetLost(Message message)
+    {
+        SetMovementAdjustment(new Vector2(0, 0));
+    }
+
+    private void HandleFightEngaged(Message message)
+    {
+        IsImmovable = true;
+    }
+
+    private void HandleFightResolved(Message message)
+    {
+        IsImmovable = false;
+    }
+
 
     // Update is called once per frame
     void Update () {

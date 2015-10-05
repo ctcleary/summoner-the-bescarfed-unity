@@ -41,8 +41,8 @@ public class SummonedController : NPC, IKillable {
 
 	// IKillable
 	public override void Kill() {
-		// TODO Recycle
-		Destroy (gameObject);
+        // TODO Recycle
+        base.Kill();
 	}
 
 	void OnBecameInvisible() {

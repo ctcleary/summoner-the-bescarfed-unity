@@ -6,7 +6,7 @@ public class MessageBus
 {
     // TODO allow multiple MessageBus types by allowing different
     //      messages enums to be configured.
-	private MessageType[] MessageTypes;
+	//private MessageType[] MessageTypes;
 	private Dictionary<MessageType, List<IMessageHandler>> MessageMap;
 
 	public MessageBus ()
@@ -41,5 +41,10 @@ public class MessageBus
             });
 		}
 	}
+
+    public void Reset()
+    {
+        MessageMap = null;
+    }
 }
 

@@ -19,9 +19,9 @@ public class HandleOpponentModule : NPCModule, INPCModule {
     // Implement NPCModule abstracts
     protected override void Listen()
     {
-        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.VisionEnter, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.Faced, (IMessageHandler)this);
+        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, this);
+        NPCMessageBus.AddMessageListener(MessageType.VisionEnter, this);
+        NPCMessageBus.AddMessageListener(MessageType.Faced, this);
     }
 
     public override void HandleMessage(Message message)
@@ -29,10 +29,10 @@ public class HandleOpponentModule : NPCModule, INPCModule {
         switch (message.MessageType)
         {
             case MessageType.OpponentsChange:
-                HandleOpponentsChangeMessage(message);
+                HandleOpponentsChange(message);
                 break;
             case MessageType.Faced:
-                HandleFacedMessage(message);
+                HandleFaced(message);
                 break;
             case MessageType.VisionEnter:
                 HandleVisionEnterMessage(message);
@@ -40,12 +40,12 @@ public class HandleOpponentModule : NPCModule, INPCModule {
         }
     }
 
-    private void HandleOpponentsChangeMessage(Message message)
+    private void HandleOpponentsChange(Message message)
     {
         OpponentTag = message.NPCKindValue.Tag;
     }
 
-    private void HandleFacedMessage(Message message)
+    private void HandleFaced(Message message)
     {
         facing = message.FacingValue;
     }

@@ -43,7 +43,7 @@ public class EnemyController : NPC, IKillable
 	{
 		// TODO don't add to score if enemy hits player.
 		ScoreKeeper.addScore (1);
-		Destroy (gameObject);
+        base.Kill();
 	}
 
 	void OnBecameInvisible ()

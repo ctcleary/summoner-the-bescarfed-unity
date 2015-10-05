@@ -95,7 +95,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
                 this.Kill();
                 break;
             case MessageType.Collided:
-                this.HandleCollidedMessage(message);
+                this.HandleCollided(message);
                 break;
             case MessageType.HealthUpdate:
                 this.HandleHealthUpdate(message);
@@ -104,14 +104,20 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
                 this.HandleAttackingMessage(message);
                 break;
             case MessageType.Faced:
-                this.HandleFacedMessage(message);
+                this.HandleFaced(message);
+                break;
+            case MessageType.FightEngaged:
+                HandleFightEngaged(message);
+                break;
+            case MessageType.FightResolved:
+                HandleFightResolved(message);
                 break;
             default:
                 Debug.Log("A message type doesn't have a handler :: " + message.MessageType);
                 break;
         }
 	}
-    private void HandleCollidedMessage(Message collidedMessage)
+    private void HandleCollided(Message collidedMessage)
     {
         // TODO 
     }
@@ -126,31 +132,32 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
             animator.SetBool("isAttacking", attackingMessage.BoolValue);
         }
     }
-    private void HandleFacedMessage(Message facedMessage)
+    private void HandleFaced(Message facedMessage)
     {
         healthBarController.SetFacing(facedMessage.FacingValue);
     }
-    private void HandleFightEngagedMessage(Message fightEngagedMessage)
+    private void HandleFightEngaged(Message fightEngagedMessage)
     {
-        animator.SetBool("isFighting", true);
+        isFighting = true;
+        animator.SetBool("isFighting", isFighting);
     }
-    private void HandleFightResolvedMessage(Message fightEngagedMessage)
+    private void HandleFightResolved(Message fightEngagedMessage)
     {
-        animator.SetBool("isFighting", false);
+        isFighting = false;
+        animator.SetBool("isFighting", isFighting);
     }
 
     // Update is called once per frame
     protected virtual void Update ()
 	{
-		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
-			StopFighting ();
-		}
+		//if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
+		//	StopFighting ();
+		//}
 		if (handleOpponentModule.HasAnyTargets()) {
 			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementDirection());
 		} else {
 			movementModule.SetMovementAdjustment(new Vector2(0,0));
 		}
-        animator.SetBool("isFighting", isFighting);
     }
 
 	// INPC
@@ -162,34 +169,34 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		}
 	}
 	
-	public virtual void SetAttackTarget (IDamageable attackTarget)
-	{
-		combatModule.SetAttackTarget (attackTarget);
-		movementModule.IsImmovable = true;
-		isFighting = true;
-	}
+	//public virtual void SetAttackTarget (IDamageable attackTarget)
+	//{
+	//	combatModule.SetAttackTarget (attackTarget);
+	//	movementModule.IsImmovable = true;
+	//	isFighting = true;
+	//}
 
-	public virtual void StopFighting ()
-	{
-		combatModule.SetAttackTarget (null);
-		movementModule.IsImmovable = false;
-		isFighting = false;
+//	public virtual void StopFighting ()
+//	{
+//		combatModule.SetAttackTarget (null);
+//		movementModule.IsImmovable = false;
+//		isFighting = false;
 
-//		AquireNewAttackTarget ();
-	}
+////		AquireNewAttackTarget ();
+//	}
 	
 	public virtual void Attack ()
 	{
-		combatModule.Attack ();
-	}
+        combatModule.Attack();
+    }
 
-	// IDamageable
-	public virtual void Hurt(float dmgTaken)
+    // IDamageable
+    public virtual void Hurt(float dmgTaken)
 	{
-		combatModule.Hurt (dmgTaken);
-	}
+        combatModule.Hurt(dmgTaken);
+    }
 
-	public virtual bool IsAlive()
+    public virtual bool IsAlive()
 	{
 		return combatModule.IsAlive ();
 	}
@@ -197,8 +204,11 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// IKillable
 	public virtual void Kill()
 	{
-		// Should be overridden in most cases. e.g. object pooling
-		Destroy (gameObject);
+        // Should be overridden in most cases. e.g. object pooling
+        if (this != null)
+        {
+            Destroy(gameObject);
+        }
 	}
 
 	public virtual string OpponentTag
@@ -214,8 +224,8 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
 	{
-        if (other.tag == null) {
-            Debug.Log("An other with no tag? " + other.gameObject.ToString());
+        if (other.tag == null || OpponentTag == null) {
+            Debug.Log("No tag? ");
             return;
         }
 		if (other.CompareTag(OpponentTag)) {
@@ -240,10 +250,17 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	
 	protected virtual void HandleTriggerStay2D(Collider2D other)
 	{
-		if (other.CompareTag (OpponentTag)) {
-			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-			SetAttackTarget (opponentCombatModule);
-		}
+        if (other.CompareTag(OpponentTag))
+        {
+            Message CollideMessage = new Message();
+            CollideMessage.MessageType = MessageType.Collided;
+            CollideMessage.GameObjectValue = other.gameObject;
+            NPCMessageBus.TriggerMessage(CollideMessage);
+        }
+  //      if (other.CompareTag (OpponentTag)) {
+		//	//IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
+		//	//SetAttackTarget (opponentCombatModule);
+		//}
 		if (other.CompareTag (transform.tag)) {
 			BounceAgainstAlly(other);
 		}

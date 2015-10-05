@@ -54,12 +54,42 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
     // Implement NPCModule abstracts
     protected override void Listen()
     {
-
+        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, this);
+        NPCMessageBus.AddMessageListener(MessageType.Collided, this);
     }
 
     public override void HandleMessage(Message message)
     {
 
+        switch (message.MessageType)
+        {
+            // I'm disliking the duplication of state here.
+            case MessageType.OpponentsChange:
+                HandleOpponentsChange(message);
+                break;
+            case MessageType.Collided:
+                HandleCollided(message);
+                break;
+        }
+    }
+
+    private void HandleOpponentsChange(Message message)
+    {
+        OpponentTag = message.NPCKindValue.Tag;
+    }
+
+    private void HandleCollided(Message message)
+    {
+        GameObject other = message.GameObjectValue;
+        IDamageable opponentCombatModule = other.GetComponentInParent<NPC>();
+        if (other.CompareTag(OpponentTag))
+        {
+            // TODO: implement a non-entity, combathandler messageBus
+            // so we're not directly referencing another gameobject.
+            SetAttackTarget(opponentCombatModule);
+            NPCMessageBus.TriggerMessage(
+                MessageBuilder.BuildGameObjectMessage(MessageType.FightEngaged, other));
+        }
     }
 
     public override void Reset()
@@ -78,24 +108,32 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	void Update ()
 	{
         if (attackTimer != null) {
-		    if (attackTarget != null) {
+		    if (attackTarget != null && attackTarget.IsAlive()) {
 			    StartCoroutine (attackTimer.DoTimer ());
 		    } else {
+                ResolveFight();
 				attackTimer.Reset ();
 		    }
         }
     }
 
+    private void ResolveFight()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.FightResolved));
+    }
+
 	public void Hurt (float dmgTaken)
 	{
 		health -= dmgTaken;
-		if (health <= 0) {
+		if (isAlive && health <= 0) {
             NPCMessageBus.TriggerMessage(MessageBuilder.BuildMessage(MessageType.Died));
 
             isAlive = false;
-		}
+		} else {
+            SendHealthUpdateMessage();
+        }
 
-        SendHealthUpdateMessage();
 	}
 
     private void SendHealthUpdateMessage()
@@ -124,7 +162,8 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		}
 		if (attackTarget == null) {	
 			StopAttackAnimation();
-		}
+            ResolveFight();
+        }
 	}
 
 	public IDamageable GetAttackTarget ()
@@ -158,10 +197,14 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 
     private void DoDamage()
 	{
-		if (attackTarget != null) {
+		if (attackTarget != null && attackTarget.IsAlive()) {
+            //Debug.Log("DoDamage, attackTarget null ? " + (attackTarget == null));
 			attackTarget.Hurt (attackDmg);
 			StopAttackAnimation();
-		}
+		} else {
+            SetAttackTarget(null);
+            StopAttackAnimation();
+        }
 	}
 
 	public bool IsAlive ()

@@ -8,8 +8,10 @@ public enum MessageType
     OpponentsChange,
 	VisionEnter,
 
+    TargetAcquired,
+    MovementAdjustment,
+    TargetLost,
 	Collided,
-    Faced,
 	
 	FightEngaged,
     Attacking,
@@ -18,6 +20,7 @@ public enum MessageType
 	FightResolved,
 
 	Spawned,
+    Faced,
     HealthUpdate,
 	Died,
 	Respawned
