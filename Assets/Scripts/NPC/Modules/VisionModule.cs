@@ -1,20 +1,16 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class VisionModule : NPCModule {
 
 	public float yScale = 1.0f;
 	public float xScale = 1.0f;
 
-	//private NPC npcController;
-
-	
 	public GameObject visionColliderPrefab;
 	private GameObject visionCollider;
 	private VisionColliderController visionColliderController;
-	
-	// Use this for initialization
-	public override void Start ()
+
+    // Use this for initialization
+    public override void Start ()
 	{
 		base.Start ();
 		
@@ -26,16 +22,6 @@ public class VisionModule : NPCModule {
 		visionColliderController.SetVisionModule (this);
 	}
 
-    // Implement NPCModule abstracts
-    protected override void Listen()
-    {
-
-    }
-
-    public override void HandleMessage(Message message)
-    {
-
-    }
 
     // Called by the "VisionTrigger"
     public void HandleOnTriggerEnter2D(Collider2D other)

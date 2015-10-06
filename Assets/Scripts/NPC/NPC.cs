@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent (typeof(CombatModule))]
@@ -40,6 +42,23 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	protected string opponentTag;
 	protected bool isFighting = false;
 
+
+    private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
+
+    public void Awake()
+    {
+        SupportedMessageMap = new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.Died, HandleDied },
+            { MessageType.Attacking, HandleAttacking },
+            { MessageType.Collided, HandleCollided },
+            { MessageType.HealthUpdate, HandleHealthUpdate },
+            { MessageType.Faced, HandleFaced },
+            { MessageType.FightEngaged, HandleFightEngaged },
+            { MessageType.FightResolved, HandleFightResolved },
+        };
+    }
+
 	// Use this for initialization
 	protected virtual void Start ()
 	{
@@ -71,52 +90,29 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		private set { return; }
 	}
 
-
-    protected void Listen()
+    // ------------------------------------------
+    // Message Handling
+    // ------------------------------------------
+    private void Listen()
     {
-        NPCMessageBus.AddMessageListener(MessageType.Died, this);
-        NPCMessageBus.AddMessageListener(MessageType.Attacking, this);
-        NPCMessageBus.AddMessageListener(MessageType.Collided, this);
-        NPCMessageBus.AddMessageListener(MessageType.HealthUpdate, this);
-        NPCMessageBus.AddMessageListener(MessageType.Faced, this);
-
-        NPCMessageBus.AddMessageListener(MessageType.FightEngaged, this);
-        NPCMessageBus.AddMessageListener(MessageType.FightResolved, this);
+        IMessageHandler thisHandler = (IMessageHandler)this;
+        foreach (MessageType mesageType in SupportedMessageMap.Keys)
+        {
+            NPCMessageBus.AddMessageListener(mesageType, thisHandler);
+        }
     }
 
-    // IMessageHandler
-    public virtual void HandleMessage(Message message) {
-        //Debug.Log ("Received message of type: " + message.MessageType);
-        //Debug.Log ("messageGameObject: " + message.GameObjectValue);
+    public void HandleMessage(Message message)
+    {
+        // Call this message type's handler function from the SupportedMessageMap
+        SupportedMessageMap[message.MessageType](message);
+    }
 
-        switch (message.MessageType)
-        {
-            case MessageType.Died:
-                this.Kill();
-                break;
-            case MessageType.Collided:
-                this.HandleCollided(message);
-                break;
-            case MessageType.HealthUpdate:
-                this.HandleHealthUpdate(message);
-                break;
-            case MessageType.Attacking:
-                this.HandleAttackingMessage(message);
-                break;
-            case MessageType.Faced:
-                this.HandleFaced(message);
-                break;
-            case MessageType.FightEngaged:
-                HandleFightEngaged(message);
-                break;
-            case MessageType.FightResolved:
-                HandleFightResolved(message);
-                break;
-            default:
-                Debug.Log("A message type doesn't have a handler :: " + message.MessageType);
-                break;
-        }
-	}
+
+    private void HandleDied(Message message)
+    {
+        Kill();
+    }
     private void HandleCollided(Message collidedMessage)
     {
         // TODO 
@@ -125,7 +121,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
     {
         healthBarController.UpdateHealthBar(healthUpdateMessage.FloatValue);
     }
-    private void HandleAttackingMessage(Message attackingMessage)
+    private void HandleAttacking(Message attackingMessage)
     {
         if (animator.isInitialized)
         {
@@ -146,6 +142,11 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
         isFighting = false;
         animator.SetBool("isFighting", isFighting);
     }
+
+    // -------------------------------
+    // END Message Handling
+    // -------------------------------
+
 
     // Update is called once per frame
     protected virtual void Update ()

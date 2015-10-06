@@ -1,67 +1,42 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MovementModule : NPCModule, INPCModule {
 	
 	public MovementProperties movementProperties;
+    public Facing facing;
 
-	private float moveSpeed;
+    private float moveSpeed;
 	private Vector2 maxVelocity;
 	private Vector2 movementAdjustment;
 	private bool isImmovable = false;
 	
-	public Facing facing;
 	private int facingFactor = 1;
-	
-	// Use this for initialization
+
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.MovementAdjustment, HandleMovementAdjustment },
+            { MessageType.TargetLost, HandleTargetLost },
+            { MessageType.FightEngaged, HandleFightEngaged },
+            { MessageType.FightResolved, HandleFightResolved },
+        };
+    }
+
+    // Use this for initialization
     public void Awake()
     {
         InitFacing();
+       
     }
 	public override void Start ()
 	{
 		base.Start ();
 		Reset ();
         NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
-    }
-
-    // Implement NPCModule abstracts
-    protected override void Listen()
-    {
-        NPCMessageBus.AddMessageListener(MessageType.TargetAcquired, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.MovementAdjustment, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.TargetLost, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.FightEngaged, (IMessageHandler)this);
-        NPCMessageBus.AddMessageListener(MessageType.FightResolved, (IMessageHandler)this);
-    }
-
-    public override void HandleMessage(Message message)
-    {
-        switch (message.MessageType)
-        {
-            case MessageType.TargetAcquired:
-                HandleTargetAcquired(message);
-                break;
-            case MessageType.MovementAdjustment:
-                HandleMovementAdjustment(message);
-                break;
-            case MessageType.TargetLost:
-                HandleTargetLost(message);
-                break;
-            case MessageType.FightEngaged:
-                HandleFightEngaged(message);
-                break;
-            case MessageType.FightResolved:
-                HandleFightResolved(message);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void HandleTargetAcquired(Message message)
-    {
-
     }
 
     private void HandleMovementAdjustment(Message message)

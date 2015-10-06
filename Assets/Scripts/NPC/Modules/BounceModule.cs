@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class BounceModule : NPCModule, INPCModule {
 
@@ -16,17 +15,6 @@ public class BounceModule : NPCModule, INPCModule {
 		base.Start ();
         rigidbodyRef = GetComponent<Rigidbody2D>();
 	}
-
-    // Implement NPCModule abstracts
-    protected override void Listen()
-    {
-
-    }
-
-    public override void HandleMessage(Message message)
-    {
-
-    }
 
     public void BounceAgainst(Collider2D other)
 	{

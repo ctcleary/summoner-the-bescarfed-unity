@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class CombatProperties
@@ -36,9 +37,19 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	// Fancy shit
 	public string attackAnim;
 	protected bool isAttacking = false;
+    
 
-	// Use this for initialization
-	public override void Start ()
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.OpponentsChange, HandleOpponentsChange },
+            { MessageType.Collided, HandleCollided }
+        };
+    }
+
+    // Use this for initialization
+    public override void Start ()
 	{
 		base.Start ();
 
@@ -50,29 +61,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
-    
-    // Implement NPCModule abstracts
-    protected override void Listen()
-    {
-        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, this);
-        NPCMessageBus.AddMessageListener(MessageType.Collided, this);
-    }
-
-    public override void HandleMessage(Message message)
-    {
-
-        switch (message.MessageType)
-        {
-            // I'm disliking the duplication of state here.
-            case MessageType.OpponentsChange:
-                HandleOpponentsChange(message);
-                break;
-            case MessageType.Collided:
-                HandleCollided(message);
-                break;
-        }
-    }
-
+   
     private void HandleOpponentsChange(Message message)
     {
         OpponentTag = message.NPCKindValue.Tag;

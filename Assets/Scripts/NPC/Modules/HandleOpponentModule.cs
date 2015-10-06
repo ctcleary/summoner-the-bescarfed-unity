@@ -1,6 +1,7 @@
 using UnityEngine;
-using System.Collections;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 public class HandleOpponentModule : NPCModule, INPCModule {
 
@@ -9,36 +10,23 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
 	private Transform pursuitTarget;
 	private Transform fleeTarget;
-	
-	// Use this for initialization
-	public override void Start ()
+
+
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.OpponentsChange, HandleOpponentsChange },
+            { MessageType.VisionEnter, HandleVisionEnter },
+            { MessageType.Faced, HandleFaced }
+        };
+    }
+
+    // Use this for initialization
+    public override void Start ()
 	{
 		base.Start ();
 	}
-
-    // Implement NPCModule abstracts
-    protected override void Listen()
-    {
-        NPCMessageBus.AddMessageListener(MessageType.OpponentsChange, this);
-        NPCMessageBus.AddMessageListener(MessageType.VisionEnter, this);
-        NPCMessageBus.AddMessageListener(MessageType.Faced, this);
-    }
-
-    public override void HandleMessage(Message message)
-    {
-        switch (message.MessageType)
-        {
-            case MessageType.OpponentsChange:
-                HandleOpponentsChange(message);
-                break;
-            case MessageType.Faced:
-                HandleFaced(message);
-                break;
-            case MessageType.VisionEnter:
-                HandleVisionEnterMessage(message);
-                break;
-        }
-    }
 
     private void HandleOpponentsChange(Message message)
     {
@@ -88,7 +76,7 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 		return normalizedAdjustment;
 	}
 
-	public void HandleVisionEnterMessage(Message visionEnterMessage)
+	public void HandleVisionEnter(Message visionEnterMessage)
 	{
         GameObject other = visionEnterMessage.GameObjectValue;
 		if (other.CompareTag (OpponentTag)) {
