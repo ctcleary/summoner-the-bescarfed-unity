@@ -29,6 +29,13 @@ static class MessageBuilder
         return message;
     }
 
+    public static Message BuildVector2Message(MessageType messageType, Vector2 vector2Value)
+    {
+        Message message = BuildMessage(messageType);
+        message.Vector2Value = vector2Value;
+        return message;
+    }
+
     public static Message BuildGameObjectMessage(MessageType messageType, GameObject gameObject)
     {
         Message message = BuildMessage(messageType);

@@ -150,14 +150,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
     // Update is called once per frame
     protected virtual void Update ()
 	{
-		//if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
-		//	StopFighting ();
-		//}
-		if (handleOpponentModule.HasAnyTargets()) {
-			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementDirection());
-		} else {
-			movementModule.SetMovementAdjustment(new Vector2(0,0));
-		}
     }
 
 	// INPC
@@ -168,22 +160,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 			 module.Reset();
 		}
 	}
-	
-	//public virtual void SetAttackTarget (IDamageable attackTarget)
-	//{
-	//	combatModule.SetAttackTarget (attackTarget);
-	//	movementModule.IsImmovable = true;
-	//	isFighting = true;
-	//}
-
-//	public virtual void StopFighting ()
-//	{
-//		combatModule.SetAttackTarget (null);
-//		movementModule.IsImmovable = false;
-//		isFighting = false;
-
-////		AquireNewAttackTarget ();
-//	}
 	
 	public virtual void Attack ()
 	{
@@ -234,18 +210,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 			CollideMessage.GameObjectValue = other.gameObject;
 			NPCMessageBus.TriggerMessage (CollideMessage);
 		}
-//		if (other.CompareTag (OpponentTag)) {
-//			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-//			SetAttackTarget (opponentCombatModule);
-//		}
-//		} else if (other.CompareTag (transform.tag)) {
-//
-//			if (!movementModule.IsImmovable) {
-//				if (!other.Equals(null)) {
-//					bounceModule.BounceAgainst(other);
-//				}
-//			}
-//		}
 	}
 	
 	protected virtual void HandleTriggerStay2D(Collider2D other)
@@ -257,10 +221,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
             CollideMessage.GameObjectValue = other.gameObject;
             NPCMessageBus.TriggerMessage(CollideMessage);
         }
-  //      if (other.CompareTag (OpponentTag)) {
-		//	//IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-		//	//SetAttackTarget (opponentCombatModule);
-		//}
 		if (other.CompareTag (transform.tag)) {
 			BounceAgainstAlly(other);
 		}

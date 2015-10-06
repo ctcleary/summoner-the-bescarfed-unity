@@ -104,8 +104,9 @@ public class MovementModule : NPCModule, INPCModule {
 	// Implement Abstract
 	public override void Reset()
 	{
-		// Set to private variables so we can reset based on `movementProperties`
-		moveSpeed = movementProperties.moveSpeed;
+        // Set to private variables so we can reset based on `movementProperties`
+        SetMovementAdjustment(new Vector2(0, 0));
+        moveSpeed = movementProperties.moveSpeed;
 		maxVelocity = movementProperties.maxVelocity;
 	}
 

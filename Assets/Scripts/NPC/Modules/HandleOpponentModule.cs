@@ -54,7 +54,6 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	{
 		return HasPursuitTarget() || HasFleeTarget();
 	}
-	
 	private bool HasPursuitTarget()
 	{
 		return pursuitTarget != null;
@@ -67,10 +66,10 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	// Update is called once per frame
 	void Update ()
 	{
-		//facing = npcController.GetFacing();
-
 		if (HasAnyTargets()) {
 			DetermineLoseTargets();
+            NPCMessageBus.TriggerMessage(
+                MessageBuilder.BuildVector2Message(MessageType.MovementAdjustment, GetMovementDirection()));
 		}
 	}
 
@@ -93,33 +92,38 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	{
         GameObject other = visionEnterMessage.GameObjectValue;
 		if (other.CompareTag (OpponentTag)) {
-			switch (behavior) {
-			case HandleOpponentBehavior.FIGHT:
-				if (!HasPursuitTarget ()) {
-					pursuitTarget = other.transform;
-				} else {
-					pursuitTarget = WhichIsCloser (other.transform, pursuitTarget);
-				}
-				break;
-			case HandleOpponentBehavior.FLEE:
-				if (!HasFleeTarget()) {
-					fleeTarget = other.transform;
-				} else {
-					fleeTarget = WhichIsCloser (other.transform, fleeTarget);
-				}
-				break;
-			default:
-				break;
-			}
-		}
+            switch (behavior)
+            {
+			    case HandleOpponentBehavior.FIGHT:
+				    if (!HasPursuitTarget ()) {
+					    pursuitTarget = other.transform;
+				    } else {
+					    pursuitTarget = WhichIsCloser (other.transform, pursuitTarget);
+				    }
+				    break;
+			    case HandleOpponentBehavior.FLEE:
+				    if (!HasFleeTarget()) {
+					    fleeTarget = other.transform;
+				    } else {
+					    fleeTarget = WhichIsCloser (other.transform, fleeTarget);
+				    }
+				    break;
+			    default:
+				    break;
+            }
+
+            TargetAcquired();
+        }
 	}
 
 	private void DetermineLoseTargets() {
 		if (HasPursuitTarget() && IsBehindMe (pursuitTarget)) {
 			pursuitTarget = null;
+            TargetLost();
 		}
 		if (HasFleeTarget() && IsBehindMe(fleeTarget)) {
             fleeTarget = null;
+            TargetLost();
 		}
 	}
 
@@ -131,6 +135,18 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 			return other.position.x > transform.position.x;
 		}
 	}
+
+    private void TargetAcquired()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.TargetAcquired));
+    }
+
+    private void TargetLost()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.TargetLost));
+    }
 
 	private Transform WhichIsCloser(Transform a, Transform b)
 	{

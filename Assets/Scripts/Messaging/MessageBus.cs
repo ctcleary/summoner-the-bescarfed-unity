@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public class MessageBus
@@ -11,6 +12,7 @@ public class MessageBus
 
 	public MessageBus ()
 	{
+
 		MessageMap = new Dictionary<MessageType, List<IMessageHandler>> ();
 	}
 
