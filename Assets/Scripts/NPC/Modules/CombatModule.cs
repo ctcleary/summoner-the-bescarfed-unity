@@ -43,6 +43,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
     {
         return new Dictionary<MessageType, Action<Message>>()
         {
+            { MessageType.Damaged, HandleDamaged },
             { MessageType.OpponentsChange, HandleOpponentsChange },
             { MessageType.Collided, HandleCollided }
         };
@@ -61,7 +62,12 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
-   
+
+    private void HandleDamaged(Message message)
+    {
+        this.Hurt(message.FloatValue);
+    }
+
     private void HandleOpponentsChange(Message message)
     {
         OpponentTag = message.NPCKindValue.Tag;

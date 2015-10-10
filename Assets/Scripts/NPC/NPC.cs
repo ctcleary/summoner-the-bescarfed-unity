@@ -156,21 +156,21 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// INPC
 	public virtual void Reset ()
 	{
-		// All modules should inherit NPCModule abstract base class.
 		foreach (NPCModule module in Modules.Values) {
 			 module.Reset();
 		}
 	}
-	
-	public virtual void Attack ()
-	{
-        combatModule.Attack();
-    }
+
+    //public virtual void Attack ()
+    //{
+    //       combatModule.Attack();
+    //}
 
     // IDamageable
     public virtual void Hurt(float dmgTaken)
-	{
-        combatModule.Hurt(dmgTaken);
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildFloatMessage(MessageType.Damaged, dmgTaken));
     }
 
     public virtual bool IsAlive()
@@ -200,39 +200,18 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	}
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
-	{
-        if (other.tag == null || OpponentTag == null) {
-            Debug.Log("No tag? ");
-            return;
-        }
-		if (other.CompareTag(OpponentTag)) {
-			Message CollideMessage = new Message ();
-			CollideMessage.MessageType = MessageType.Collided;
-			CollideMessage.GameObjectValue = other.gameObject;
-			NPCMessageBus.TriggerMessage (CollideMessage);
-		}
-	}
+    {
+        SendCollideMessage(other);
+    }
 	
 	protected virtual void HandleTriggerStay2D(Collider2D other)
 	{
-        if (other.CompareTag(OpponentTag))
-        {
-            Message CollideMessage = new Message();
-            CollideMessage.MessageType = MessageType.Collided;
-            CollideMessage.GameObjectValue = other.gameObject;
-            NPCMessageBus.TriggerMessage(CollideMessage);
-        }
-		if (other.CompareTag (transform.tag)) {
-			BounceAgainstAlly(other);
-		}
+        SendCollideMessage(other);
 	}
-
-	public virtual void BounceAgainstAlly(Collider2D other)
-	{
-		if (!movementModule.IsImmovable) {
-			if (!other.Equals (null)) {
-				bounceModule.BounceAgainst (other);
-			}
-		}
-	}
+    
+    private void SendCollideMessage(Collider2D other)
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildGameObjectMessage(MessageType.Collided, other.gameObject));
+    }
 }
