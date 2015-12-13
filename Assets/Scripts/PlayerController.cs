@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : Entity, IDamageable, IKillable
+public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttachment
 {
 
 	public CombatProperties combatProperties;
@@ -24,6 +24,7 @@ public class PlayerController : Entity, IDamageable, IKillable
 
 	private Animator anim;
 	private bool isMoving;
+    private Facing facing = Facing.RIGHT;
 
 	private float movementGrowRate = 0.2f;
 	private float movementDecayRate = 0.8f;
@@ -67,19 +68,31 @@ public class PlayerController : Entity, IDamageable, IKillable
 	}
 
 	private void HandleMovement ()
-	{
-		// HANDLE MOVEMENT
-		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
+    {
+        Facing prevFacing = facing;
+
+        // HANDLE MOVEMENT
+        Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
 		Vector2 velocityIncrease = new Vector2 (0, 0);
-		
-		if (Input.GetAxis ("Horizontal") != 0) {
-			velocityIncrease.x += moveSpeed * Input.GetAxis ("Horizontal");
-		} else if (newVelocity.x != 0) {
+
+        float inputHorizontal = Input.GetAxis("Horizontal");
+        float inputVertical = Input.GetAxis("Vertical");
+        if (inputHorizontal != 0) {
+			velocityIncrease.x += moveSpeed * inputHorizontal;
+            if (inputHorizontal > 0) {
+                facing = Facing.RIGHT;
+                healthBarController.SetFacing(facing);
+            } else {
+                facing = Facing.LEFT;
+                healthBarController.SetFacing(facing);
+            }
+
+        } else if (newVelocity.x != 0) {
 			newVelocity.x -= newVelocity.x * movementDecayRate;
 		}
 		
-		if (Input.GetAxis ("Vertical") != 0) {
-			velocityIncrease.y += moveSpeed * Input.GetAxis ("Vertical");
+		if (inputVertical != 0) {
+			velocityIncrease.y += moveSpeed * inputVertical;
 		} else if (newVelocity.y != 0) {
 			newVelocity.y -= newVelocity.y * movementDecayRate;
 		}
@@ -88,18 +101,42 @@ public class PlayerController : Entity, IDamageable, IKillable
 		newVelocity.y = Mathf.Clamp (newVelocity.y, -maxVelocity.y, maxVelocity.y);
 		GetComponent<Rigidbody2D>().velocity = newVelocity;
 
-		// HANDLE FLIPPING
-		Vector3 newScale = transform.localScale;
-		if (GetComponent<Rigidbody2D>().velocity.x < 0 && newScale.x != -1) {
-			newScale.x = -1;
-		} else if (GetComponent<Rigidbody2D>().velocity.x > 0 && newScale.x != 1) {
-			newScale.x = 1;
-		}
-
-		transform.localScale = newScale;
+        // HANDLE FLIPPING
+        if (prevFacing != facing)
+        {
+            Vector3 newScale = transform.localScale;
+            switch (facing)
+            {
+                case Facing.LEFT:
+                    newScale.x = -1;
+                    break;
+                case Facing.RIGHT:
+                    newScale.x = 1;
+                    break;
+            }
+            transform.localScale = newScale;
+        }
 	}
 
-	private bool IsMoving()
+    //private void DetermineFacing()
+    //{
+    //    if (GetComponent<Rigidbody2D>().velocity.x < 0)
+    //    {
+    //        this.facing = Facing.LEFT;
+    //    }
+    //    else if (GetComponent<Rigidbody2D>().velocity.x > 0)
+    //    {
+    //        this.facing = Facing.RIGHT;
+    //    }
+    //    // else do nothing
+    //}
+
+    public Facing GetFacing()
+    {
+        return this.facing;
+    }
+
+    private bool IsMoving()
 	{
 		Vector2 currVelocity = GetComponent<Rigidbody2D>().velocity;
 		return currVelocity.x > 0.25 || currVelocity.x < -0.25 ||

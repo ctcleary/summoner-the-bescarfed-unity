@@ -39,10 +39,6 @@ public class MovementModule : NPCModule, INPCModule {
 
     private void HandleTargetLost(Message message)
     {
-        if (this.tag == NPCKind.ENEMY.Name)
-        {
-            Debug.Log(this.name + " HandleTargetLost");
-        }
         SetMovementAdjustment(new Vector2(0, 0));
     }
 

@@ -18,7 +18,7 @@ using System.Collections.Generic;
  * Rework NPC to use the MessageBus object for all inter-component communication.
  */
 
-public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
+public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealthBarAttachment
 {
 	protected MessageBus NPCMessageBus = new MessageBus ();
 
