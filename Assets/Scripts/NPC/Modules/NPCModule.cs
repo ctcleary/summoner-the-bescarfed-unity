@@ -16,12 +16,19 @@ public abstract class NPCModule : MonoBehaviour, IMessageHandler
     public virtual void Start()
 	{
 		NPCGameObject = GetComponentInParent<NPC>();
-        this.OpponentTag = NPCGameObject.OpponentTag;
-        this.NPCMessageBus = NPCGameObject.MessageBus;
+        this.Controller = NPCGameObject;
+        this.OpponentTag = this.Controller.OpponentTag;
+        this.NPCMessageBus = this.Controller.MessageBus;
 
         SupportedMessageMap = GetSupportedMessageMap();
         Listen();
-	}
+    }
+
+    public NPC Controller
+    {
+        get { return NPCGameObject; }
+        private set { this.NPCGameObject = value; }
+    }
 
     public MessageBus NPCMessageBus
     {

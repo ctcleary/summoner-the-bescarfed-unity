@@ -4,21 +4,17 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class HandleOpponentModule : NPCModule, INPCModule {
-
-	public HandleOpponentBehavior behavior;
-	private Facing facing = Facing.RIGHT;
-
+    
 	private Transform pursuitTarget;
 	private Transform fleeTarget;
-
 
     protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
     {
         return new Dictionary<MessageType, Action<Message>>()
         {
             { MessageType.OpponentsChange, HandleOpponentsChange },
-            { MessageType.VisionEnter, HandleVisionEnter },
-            { MessageType.Faced, HandleFaced }
+            { MessageType.VisionEnter, HandleVisionEnter }//,
+            //{ MessageType.Faced, HandleFaced }
         };
     }
 
@@ -31,11 +27,6 @@ public class HandleOpponentModule : NPCModule, INPCModule {
     private void HandleOpponentsChange(Message message)
     {
         OpponentTag = message.NPCKindValue.Tag;
-    }
-
-    private void HandleFaced(Message message)
-    {
-        facing = message.FacingValue;
     }
 
     public bool HasAnyTargets()
@@ -54,9 +45,11 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	// Update is called once per frame
 	void Update ()
 	{
-		if (HasAnyTargets()) {
-			DetermineLoseTargets();
-            NPCMessageBus.TriggerMessage(
+        if (HasAnyTargets()) {
+            DetermineLoseTargets();
+        }
+        if (HasAnyTargets()) {
+             NPCMessageBus.TriggerMessage(
                 MessageBuilder.BuildVector2Message(MessageType.MovementAdjustment, GetMovementDirection()));
 		}
 	}
@@ -80,7 +73,7 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	{
         GameObject other = visionEnterMessage.GameObjectValue;
 		if (other.CompareTag (OpponentTag)) {
-            switch (behavior)
+            switch (this.Controller.GetBehavior())
             {
 			    case HandleOpponentBehavior.FIGHT:
 				    if (!HasPursuitTarget ()) {
@@ -117,12 +110,14 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 
 	private bool IsBehindMe(Transform other)
 	{
-        if (facing == Facing.RIGHT) {
-			return other.position.x < transform.position.x;
+        bool isBehindMe = false;
+        if (this.Controller.facing == Facing.RIGHT) {
+            isBehindMe = other.position.x < transform.position.x;
 		} else {
-			return other.position.x > transform.position.x;
-		}
-	}
+            isBehindMe = other.position.x > transform.position.x;
+        }
+        return isBehindMe;
+    }
 
     private void TargetAcquired()
     {

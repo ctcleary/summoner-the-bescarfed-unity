@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class MovementModule : NPCModule, INPCModule {
 	
 	public MovementProperties movementProperties;
-    public Facing facing;
 
     private float moveSpeed;
 	private Vector2 maxVelocity;
@@ -27,16 +26,10 @@ public class MovementModule : NPCModule, INPCModule {
     }
 
     // Use this for initialization
-    public void Awake()
-    {
-        InitFacing();
-       
-    }
 	public override void Start ()
-	{
-		base.Start ();
-		Reset ();
-        NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
+    {
+        base.Start ();
+        InitFacing();
     }
 
     private void HandleMovementAdjustment(Message message)
@@ -46,6 +39,10 @@ public class MovementModule : NPCModule, INPCModule {
 
     private void HandleTargetLost(Message message)
     {
+        if (this.tag == NPCKind.ENEMY.Name)
+        {
+            Debug.Log(this.name + " HandleTargetLost");
+        }
         SetMovementAdjustment(new Vector2(0, 0));
     }
 
@@ -83,7 +80,7 @@ public class MovementModule : NPCModule, INPCModule {
         SetMovementAdjustment(new Vector2(0, 0));
         moveSpeed = movementProperties.moveSpeed;
 		maxVelocity = movementProperties.maxVelocity;
-	}
+    }
 
 	private void Move()
 	{
@@ -138,7 +135,7 @@ public class MovementModule : NPCModule, INPCModule {
 	private void ClampVelocity()
 	{
 		Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
-		if (facing == Facing.RIGHT) {
+		if (Controller.GetFacing() == Facing.RIGHT) {
 			newVelocity.x = Mathf.Clamp (newVelocity.x, 0, maxVelocity.x);
 		} else {
 			newVelocity.x = Mathf.Clamp (newVelocity.x, -maxVelocity.x, 0);
@@ -161,25 +158,21 @@ public class MovementModule : NPCModule, INPCModule {
     private void InitFacing()
     {
         UseFacing();
-        if (GetFacing() == Facing.LEFT)
+        if (Controller.GetFacing() == Facing.LEFT)
         {
             facingFactor = -1;
         }
     }
     private void UseFacing()
 	{
-		if (facing == Facing.LEFT)
+		if (Controller.GetFacing() == Facing.LEFT)
 		{
 			Vector3 newScale = transform.localScale;
 			newScale.x = -1;
 			transform.localScale = newScale;
 		}
 	}
-
-	public Facing GetFacing()
-	{
-		return facing;
-	}
+    
 
 	public bool IsImmovable {
 		get { return isImmovable; }

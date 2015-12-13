@@ -42,6 +42,8 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	protected string opponentTag;
 	protected bool isFighting = false;
 
+    public Facing facing;
+    public HandleOpponentBehavior behavior;
 
     private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
 
@@ -59,14 +61,21 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
         };
     }
 
+  //  protected virtual void Awak()
+  //  {
+  //      GetModules();
+		//animator = GetComponent<Animator>();
+
+  //  }
 	// Use this for initialization
 	protected virtual void Start ()
 	{
         Listen();
 
         GetModules();
-		animator = GetComponent<Animator>();
-		Reset ();
+        animator = GetComponent<Animator>();
+
+        Reset ();
 	}
 
     protected void GetModules()
@@ -89,6 +98,16 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		get { return NPCMessageBus; }
 		private set { return; }
 	}
+
+    public Facing GetFacing()
+    {
+        return this.facing;
+    }
+
+    public HandleOpponentBehavior GetBehavior()
+    {
+        return this.behavior;
+    }
 
     // ------------------------------------------
     // Message Handling
@@ -192,11 +211,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	{
 		get { return opponentTag; }
 		protected set { opponentTag = value; }
-	}	
-
-	public Facing GetFacing()
-	{
-		return movementModule.GetFacing ();
 	}
 
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
