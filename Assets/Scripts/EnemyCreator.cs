@@ -8,6 +8,8 @@ public class EnemyCreator : MonoBehaviour {
 
 	public GameObject enemyPrefab;
 
+    private int enemiesSpawnedCt = 0;
+
 	private Camera mainCam;
 
 	// Use this for initialization
@@ -51,7 +53,11 @@ public class EnemyCreator : MonoBehaviour {
 	{
 		Object newObj = Instantiate (enemyPrefab);
 		GameObject newEnemy = newObj as GameObject;
-		newEnemy.transform.parent = transform;
+
+        newObj.name = newObj.name + "_" + enemiesSpawnedCt;
+        enemiesSpawnedCt++;
+
+        newEnemy.transform.parent = transform;
 
 		PositionAtSpawn(newEnemy);
 

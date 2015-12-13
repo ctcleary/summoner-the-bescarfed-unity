@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class CombatProperties
@@ -15,7 +16,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 {
 	
 	public CombatProperties combatProperties;
-	private Animator animator;
+	//private Animator animator;
 
 	// Health and Defense props
 	private float health;
@@ -36,9 +37,20 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	// Fancy shit
 	public string attackAnim;
 	protected bool isAttacking = false;
+    
 
-	// Use this for initialization
-	public override void Start ()
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.Damaged, HandleDamaged },
+            { MessageType.OpponentsChange, HandleOpponentsChange },
+            { MessageType.Collided, HandleCollided }
+        };
+    }
+
+    // Use this for initialization
+    public override void Start ()
 	{
 		base.Start ();
 
@@ -46,13 +58,36 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		attackTimerCallback = Attack;
 		attackTimer = new Timer (2f, attackTimerCallback);
 
-		animator = GetComponentInParent<Animator> ();	
+		//animator = GetComponentInParent<Animator> ();	
 		isAlive = true;
 		Reset (); // Set private variables.
 	}
-	
-	// Implement Abstract
-	public override void Reset()
+
+    private void HandleDamaged(Message message)
+    {
+        this.Hurt(message.FloatValue);
+    }
+
+    private void HandleOpponentsChange(Message message)
+    {
+        OpponentTag = message.NPCKindValue.Tag;
+    }
+
+    private void HandleCollided(Message message)
+    {
+        GameObject other = message.GameObjectValue;
+        IDamageable opponentCombatModule = other.GetComponentInParent<NPC>();
+        if (other.CompareTag(OpponentTag))
+        {
+            // TODO: implement a non-entity, combathandler messageBus
+            // so we're not directly referencing another gameobject.
+            SetAttackTarget(opponentCombatModule);
+            NPCMessageBus.TriggerMessage(
+                MessageBuilder.BuildGameObjectMessage(MessageType.FightEngaged, other));
+        }
+    }
+
+    public override void Reset()
 	{
 		isAlive = true;
 		
@@ -62,31 +97,47 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		
 		attackDmg = combatProperties.attackDmg;
 		//attackSpd = combatProperties.attackSpd;
-		
-		StopAttackAnimation();
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		if (attackTarget != null) {
-			StartCoroutine (attackTimer.DoTimer ());
-		} else {
-			if (attackTimer != null) {
+        if (attackTimer != null) {
+		    if (attackTarget != null && attackTarget.IsAlive()) {
+			    StartCoroutine (attackTimer.DoTimer ());
+		    } else {
+                ResolveFight();
 				attackTimer.Reset ();
-			}
-		}
-	}
+		    }
+        }
+    }
+
+    private void ResolveFight()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.FightResolved));
+    }
 
 	public void Hurt (float dmgTaken)
 	{
 		health -= dmgTaken;
-		if (health <= 0) {
-			isAlive = false;
-		}
+		if (isAlive && health <= 0) {
+            NPCMessageBus.TriggerMessage(MessageBuilder.BuildMessage(MessageType.Died));
+
+            isAlive = false;
+		} else {
+            SendHealthUpdateMessage();
+        }
+
 	}
 
-	public float GetPercentageOfMaxHealth()
+    private void SendHealthUpdateMessage()
+    {
+        NPCMessageBus.TriggerMessage(MessageBuilder
+            .BuildFloatMessage(MessageType.HealthUpdate, GetPercentageOfMaxHealth()));
+    }
+
+    private float GetPercentageOfMaxHealth()
 	{
 		if (combatProperties.health == 0) {
 			return 0;
@@ -106,7 +157,8 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 		}
 		if (attackTarget == null) {	
 			StopAttackAnimation();
-		}
+            ResolveFight();
+        }
 	}
 
 	public IDamageable GetAttackTarget ()
@@ -117,34 +169,37 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 	public void Attack ()
 	{
 		if (attackTarget != null) {
-//			if (attackAnim != null) {
-//				animator.Play (attackAnim);
-//			}
-
 			isAttacking = true;
-			animator.SetBool("isAttacking", isAttacking);
-			Invoke ("DoDamage", 0.3f);
+            NPCMessageBus.TriggerMessage(CreateAttackingMessage(true));
+            Invoke("DoDamage", 0.3f);
 
 		} else {
 			Debug.Log ("attack target was nullified!");
 			SetAttackTarget (null);
 		}
 	}
+    private Message CreateAttackingMessage(bool isAttacking)
+    {
+        Message attackMessage = MessageBuilder.BuildBoolMessage(MessageType.Attacking, isAttacking);
+        return attackMessage;
+    }
 
-	private void StopAttackAnimation()
+    private void StopAttackAnimation()
 	{
 		isAttacking = false;
-		if (animator != null) {
-			animator.SetBool("isAttacking", isAttacking);
-		}
-	}
+        NPCMessageBus.TriggerMessage(CreateAttackingMessage(false));
+    }
 
-	private void DoDamage()
+    private void DoDamage()
 	{
-		if (attackTarget != null) {
+		if (attackTarget != null && attackTarget.IsAlive()) {
+            //Debug.Log("DoDamage, attackTarget null ? " + (attackTarget == null));
 			attackTarget.Hurt (attackDmg);
 			StopAttackAnimation();
-		}
+		} else {
+            SetAttackTarget(null);
+            StopAttackAnimation();
+        }
 	}
 
 	public bool IsAlive ()

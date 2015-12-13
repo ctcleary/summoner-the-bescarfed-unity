@@ -9,16 +9,16 @@ using System.Collections;
  * parent NPC when a TriggerEnter event occurs, indicating
  * that the Entity is now seeing something new.
  */
-public class VisionTrigger : MonoBehaviour {
+public class VisionColliderController : MonoBehaviour {
 
 	private VisionModule visionModule;
 	private Vector2 visionScale;
 
-	public void SetVisionModule(NPCModule visionModule)
+	public void SetVisionModule(VisionModule visionModule)
 	{
 		this.visionModule = (VisionModule)visionModule;
 		visionScale = this.visionModule.GetVisionScale ();
-
+		
 		transform.localScale = new Vector3 (visionScale.x, visionScale.y, transform.localScale.z);
 	}
 	

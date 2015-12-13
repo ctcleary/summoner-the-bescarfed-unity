@@ -1,22 +1,58 @@
 using UnityEngine;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
-public abstract class NPCModule : MonoBehaviour
+public abstract class NPCModule : MonoBehaviour, IMessageHandler
 {
 	private NPC NPCGameObject;
 	private MessageBus messageBus;
+    private string opponentTag;
 
-	public virtual void Start()
+    private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
+
+    public abstract void Reset();
+
+    public virtual void Start()
 	{
-		NPCGameObject = GetComponent<NPC>();
-		this.MessageBus = NPCGameObject.MessageBus;
+		NPCGameObject = GetComponentInParent<NPC>();
+        this.OpponentTag = NPCGameObject.OpponentTag;
+        this.NPCMessageBus = NPCGameObject.MessageBus;
+
+        SupportedMessageMap = GetSupportedMessageMap();
+        Listen();
 	}
 
-	public MessageBus MessageBus {
-		private get { return messageBus; }
-		set { this.messageBus = value; }
-	}
+    public MessageBus NPCMessageBus
+    {
+        get { return messageBus; }
+        private set { this.messageBus = value; }
+    }
 
-	public abstract void Reset();
+    public string OpponentTag
+    {
+        get { return opponentTag; }
+        protected set { this.opponentTag = value; }
+    }
+
+    protected virtual Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>();
+    }
+
+    protected void Listen()
+    {
+        IMessageHandler thisHandler = (IMessageHandler)this;
+        foreach (MessageType mesageType in SupportedMessageMap.Keys)
+        {
+            NPCMessageBus.AddMessageListener(mesageType, thisHandler);
+        }
+    }
+
+    public void HandleMessage(Message message)
+    {
+        // Call this message type's handler function from the SupportedMessageMap
+        SupportedMessageMap[message.MessageType](message);
+    }
 }
 

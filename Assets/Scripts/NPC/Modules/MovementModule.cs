@@ -1,31 +1,67 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MovementModule : NPCModule, INPCModule {
 	
 	public MovementProperties movementProperties;
+    public Facing facing;
 
-	private float moveSpeed;
+    private float moveSpeed;
 	private Vector2 maxVelocity;
 	private Vector2 movementAdjustment;
 	private bool isImmovable = false;
 	
-	public Facing facing;
 	private int facingFactor = 1;
-	
-	// Use this for initialization
+
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.MovementAdjustment, HandleMovementAdjustment },
+            { MessageType.TargetLost, HandleTargetLost },
+            { MessageType.FightEngaged, HandleFightEngaged },
+            { MessageType.FightResolved, HandleFightResolved },
+        };
+    }
+
+    // Use this for initialization
+    public void Awake()
+    {
+        InitFacing();
+       
+    }
 	public override void Start ()
 	{
 		base.Start ();
 		Reset ();
-		UseFacing ();
-		if (GetFacing () == Facing.LEFT) {
-			facingFactor = -1;
-		}
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        NPCMessageBus.TriggerMessage(MessageBuilder.BuildFacedMessage(this.facing));
+    }
+
+    private void HandleMovementAdjustment(Message message)
+    {
+        SetMovementAdjustment(message.Vector2Value);
+    }
+
+    private void HandleTargetLost(Message message)
+    {
+        SetMovementAdjustment(new Vector2(0, 0));
+    }
+
+    private void HandleFightEngaged(Message message)
+    {
+        IsImmovable = true;
+    }
+
+    private void HandleFightResolved(Message message)
+    {
+        IsImmovable = false;
+    }
+
+
+    // Update is called once per frame
+    void Update () {
 		if (isImmovable) {
 			StopMovement ();
 
@@ -43,8 +79,9 @@ public class MovementModule : NPCModule, INPCModule {
 	// Implement Abstract
 	public override void Reset()
 	{
-		// Set to private variables so we can reset based on `movementProperties`
-		moveSpeed = movementProperties.moveSpeed;
+        // Set to private variables so we can reset based on `movementProperties`
+        SetMovementAdjustment(new Vector2(0, 0));
+        moveSpeed = movementProperties.moveSpeed;
 		maxVelocity = movementProperties.maxVelocity;
 	}
 
@@ -61,10 +98,10 @@ public class MovementModule : NPCModule, INPCModule {
 				newVelocity.y = Mathf.Clamp(newVelocity.y, -100, 0);
 			}
 		}
+        
+        Vector2 adjustedVelocity = AdjustMovement(newVelocity);
 
-		newVelocity = AdjustMovement(newVelocity);
-
-		GetComponent<Rigidbody2D>().velocity = newVelocity;
+		GetComponent<Rigidbody2D>().velocity = adjustedVelocity;
 	}
 
 	public void SetMovementAdjustment(Vector2 direction) {
@@ -121,7 +158,15 @@ public class MovementModule : NPCModule, INPCModule {
 		return GetComponent<Rigidbody2D>().velocity.x == 0 && GetComponent<Rigidbody2D>().velocity.y == 0;
 	}
 
-	private void UseFacing()
+    private void InitFacing()
+    {
+        UseFacing();
+        if (GetFacing() == Facing.LEFT)
+        {
+            facingFactor = -1;
+        }
+    }
+    private void UseFacing()
 	{
 		if (facing == Facing.LEFT)
 		{

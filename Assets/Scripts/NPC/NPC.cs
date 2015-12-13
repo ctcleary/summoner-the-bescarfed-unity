@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -13,8 +14,8 @@ using System.Collections.Generic;
  * The NPC class acts largely as a "Mediator" object between
  * the various Modules that make up an NPC Entity.
  * 
- * It also has to handle things like changing animation states
- * which seem coupled pretty tightly by Unity itself.
+ * TODO / IN PROGRESS:
+ * Rework NPC to use the MessageBus object for all inter-component communication.
  */
 
 public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
@@ -41,104 +42,138 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	protected string opponentTag;
 	protected bool isFighting = false;
 
-	public GameObject visionColliderPrefab;
-	private GameObject visionCollider;
-	private VisionTrigger visionTrigger;
+
+    private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
+
+    public void Awake()
+    {
+        SupportedMessageMap = new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.Died, HandleDied },
+            { MessageType.Attacking, HandleAttacking },
+            { MessageType.Collided, HandleCollided },
+            { MessageType.HealthUpdate, HandleHealthUpdate },
+            { MessageType.Faced, HandleFaced },
+            { MessageType.FightEngaged, HandleFightEngaged },
+            { MessageType.FightResolved, HandleFightResolved },
+        };
+    }
 
 	// Use this for initialization
 	protected virtual void Start ()
 	{
-		NPCMessageBus.AddMessageListener (EntityMessage.Collided, this);
+        Listen();
 
-		Modules = new Dictionary<string, NPCModule> ();
-		foreach (KeyValuePair<string, string> entry in NPCModuleTypes) {
-			Modules.Add (entry.Key, (NPCModule)GetComponent(entry.Value));
-		};
-		
-		combatModule = (CombatModule)Modules["Combat"];
-		movementModule = (MovementModule)Modules["Movement"];
-		bounceModule = (BounceModule)Modules["Bounce"];
-		handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
-		visionModule = (VisionModule)Modules["Vision"];
-
+        GetModules();
 		animator = GetComponent<Animator>();
-
-		// Instantiate a VisionCollider and attach it here.
-		visionCollider = Instantiate(visionColliderPrefab, transform.position, Quaternion.identity) as GameObject;
-		visionCollider.transform.parent = transform;
-
-		visionTrigger = visionCollider.GetComponent<VisionTrigger>();
-		visionTrigger.SetVisionModule(Modules["Vision"]);
 		Reset ();
 	}
 
-	public MessageBus MessageBus {
+    protected void GetModules()
+    {
+        Modules = new Dictionary<string, NPCModule>();
+        foreach (KeyValuePair<string, string> entry in NPCModuleTypes)
+        {
+            NPCModule module = (NPCModule)GetComponent(entry.Value);
+            Modules.Add(entry.Key, module);
+        };
+
+        combatModule = (CombatModule)Modules["Combat"];
+        movementModule = (MovementModule)Modules["Movement"];
+        bounceModule = (BounceModule)Modules["Bounce"];
+        handleOpponentModule = (HandleOpponentModule)Modules["HandleOpponent"];
+        visionModule = (VisionModule)Modules["Vision"];
+    }
+
+    public MessageBus MessageBus {
 		get { return NPCMessageBus; }
 		private set { return; }
 	}
 
-	// Update is called once per frame
-	protected virtual void Update ()
+    // ------------------------------------------
+    // Message Handling
+    // ------------------------------------------
+    private void Listen()
+    {
+        IMessageHandler thisHandler = (IMessageHandler)this;
+        foreach (MessageType mesageType in SupportedMessageMap.Keys)
+        {
+            NPCMessageBus.AddMessageListener(mesageType, thisHandler);
+        }
+    }
+
+    public void HandleMessage(Message message)
+    {
+        // Call this message type's handler function from the SupportedMessageMap
+        SupportedMessageMap[message.MessageType](message);
+    }
+
+
+    private void HandleDied(Message message)
+    {
+        Kill();
+    }
+    private void HandleCollided(Message collidedMessage)
+    {
+        // TODO 
+    }
+    private void HandleHealthUpdate(Message healthUpdateMessage)
+    {
+        healthBarController.UpdateHealthBar(healthUpdateMessage.FloatValue);
+    }
+    private void HandleAttacking(Message attackingMessage)
+    {
+        if (animator.isInitialized)
+        {
+            animator.SetBool("isAttacking", attackingMessage.BoolValue);
+        }
+    }
+    private void HandleFaced(Message facedMessage)
+    {
+        healthBarController.SetFacing(facedMessage.FacingValue);
+    }
+    private void HandleFightEngaged(Message fightEngagedMessage)
+    {
+        isFighting = true;
+        animator.SetBool("isFighting", isFighting);
+    }
+    private void HandleFightResolved(Message fightEngagedMessage)
+    {
+        isFighting = false;
+        animator.SetBool("isFighting", isFighting);
+    }
+
+    // -------------------------------
+    // END Message Handling
+    // -------------------------------
+
+
+    // Update is called once per frame
+    protected virtual void Update ()
 	{
-		if (!combatModule.IsAlive()) {
-			Kill ();
-		}
-
-		healthBarController.UpdateHealthBar(combatModule.GetPercentageOfMaxHealth(), GetFacing());
-
-		if (isFighting && combatModule.GetAttackTarget ().Equals(null)) {
-			StopFighting ();
-		}
-		if (handleOpponentModule.HasAnyTargets()) {
-			movementModule.SetMovementAdjustment(handleOpponentModule.GetMovementDirection());
-		} else {
-			movementModule.SetMovementAdjustment(new Vector2(0,0));
-		}
-		animator.SetBool("isFighting", isFighting);
-	}
+    }
 
 	// INPC
 	public virtual void Reset ()
 	{
-		// All modules should implement INPCModule
 		foreach (NPCModule module in Modules.Values) {
 			 module.Reset();
 		}
-//		combatModule.Reset ();
-//		movementModule.Reset ();
-//		bounceModule.Reset ();
-//		handleOpponentModule.Reset ();
-//		visionModule.Reset ();
-	}
-	
-	public virtual void SetAttackTarget (IDamageable attackTarget)
-	{
-		combatModule.SetAttackTarget (attackTarget);
-		movementModule.IsImmovable = true;
-		isFighting = true;
 	}
 
-	public virtual void StopFighting ()
-	{
-		combatModule.SetAttackTarget (null);
-		movementModule.IsImmovable = false;
-		isFighting = false;
+    //public virtual void Attack ()
+    //{
+    //       combatModule.Attack();
+    //}
 
-//		AquireNewAttackTarget ();
-	}
-	
-	public virtual void Attack ()
-	{
-		combatModule.Attack ();
-	}
+    // IDamageable
+    public virtual void Hurt(float dmgTaken)
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildFloatMessage(MessageType.Damaged, dmgTaken));
+    }
 
-	// IDamageable
-	public virtual void Hurt(float dmgTaken)
-	{
-		combatModule.Hurt (dmgTaken);
-	}
-
-	public virtual bool IsAlive()
+    public virtual bool IsAlive()
 	{
 		return combatModule.IsAlive ();
 	}
@@ -146,8 +181,11 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 	// IKillable
 	public virtual void Kill()
 	{
-		// Should be overridden in most cases.
-		Destroy (gameObject);
+        // Should be overridden in most cases. e.g. object pooling
+        if (this != null)
+        {
+            Destroy(gameObject);
+        }
 	}
 
 	public virtual string OpponentTag
@@ -161,64 +199,19 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler
 		return movementModule.GetFacing ();
 	}
 
-	// IMessageHandler
-	public virtual void HandleMessage(Message message) {
-		Debug.Log ("Received message of type: " + message.MessageType);
-		Debug.Log ("messageGameObject: " + message.GameObjectValue);
-	}
-
-	public virtual void HandleOnVisionEnter(Collider2D other)
-	{
-		// As long as we haven't seen an ally...
-		if (!other.CompareTag(tag)) {
-			handleOpponentModule.HandleSawOpponent(other);
-		}
-		// TODO
-		// Eventually, things like handleObstacleModule?
-		// - Or should Obstacles be also considered Opponents?
-		// - Some Obstacles will be IDamageable, and some summons
-		//   may eventually prioritize attacking obstacles.
-	}
-
 	protected virtual void HandleTriggerEnter2D (Collider2D other)
-	{
-		if (other.CompareTag(OpponentTag)) {
-			Message CollideMessage = new Message ();
-			CollideMessage.MessageType = EntityMessage.Collided;
-			CollideMessage.GameObjectValue = other.gameObject;
-			NPCMessageBus.TriggerMessage (CollideMessage);
-		}
-//		if (other.CompareTag (OpponentTag)) {
-//			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-//			SetAttackTarget (opponentCombatModule);
-//		}
-//		} else if (other.CompareTag (transform.tag)) {
-//
-//			if (!movementModule.IsImmovable) {
-//				if (!other.Equals(null)) {
-//					bounceModule.BounceAgainst(other);
-//				}
-//			}
-//		}
-	}
+    {
+        SendCollideMessage(other);
+    }
 	
 	protected virtual void HandleTriggerStay2D(Collider2D other)
 	{
-		if (other.CompareTag (OpponentTag)) {
-			IDamageable opponentCombatModule = other.GetComponentInParent<NPC> ();
-			SetAttackTarget (opponentCombatModule);
-		}
-		if (other.CompareTag (transform.tag)) {
-			BounceAgainstAlly(other);
-		}
+        SendCollideMessage(other);
 	}
-
-	public virtual void BounceAgainstAlly(Collider2D other)
-	{
-		if (!movementModule.IsImmovable) {
-			if (!other.Equals (null)) {
-				bounceModule.BounceAgainst (other);
-			}
-		}
-	}
+    
+    private void SendCollideMessage(Collider2D other)
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildGameObjectMessage(MessageType.Collided, other.gameObject));
+    }
 }

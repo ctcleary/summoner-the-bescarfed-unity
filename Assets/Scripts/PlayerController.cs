@@ -7,6 +7,7 @@ public class PlayerController : Entity, IDamageable, IKillable
 	public CombatProperties combatProperties;
 	public MovementProperties movementProperties;
 
+    private bool isDead = false;
 	private float health;
 	private float attackDmg;
 
@@ -59,7 +60,7 @@ public class PlayerController : Entity, IDamageable, IKillable
 		EnforceBounds ();
 
 		float percHealth = health/combatProperties.health;
-		healthBarController.UpdateHealthBar(percHealth, Facing.RIGHT); // TODO implement facing checks
+		healthBarController.UpdateHealthBar(percHealth); // TODO implement facing checks
 
 		isMoving = IsMoving ();
 		anim.SetBool ("isMoving", isMoving);
@@ -171,15 +172,19 @@ public class PlayerController : Entity, IDamageable, IKillable
 		}
 	}
 
-	public bool IsAlive ()
-	{
-		return health <= 0;
-	}
+    public bool IsAlive()
+    {
+        return health <= 0;
+    }
 
-	// IKillable
-	public void Kill ()
+    // IKillable
+    public void Kill ()
 	{
-		Debug.Log ("You're dead, bro.");
+        if (!isDead) // temp so we only send the log once.
+        {
+            isDead = true;
+            Debug.Log("You're dead, bro.");
+        }
 	}
 
 	private void FireSummon ()

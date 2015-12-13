@@ -8,10 +8,15 @@ public class EnemyController : NPC, IKillable
 	
 	// Use this for initialization
 	protected override void Start ()
-	{
-		OpponentTag = NPCKind.SUMMONED.Tag;
+    {
+        base.Start();
+        OpponentTag = NPCKind.SUMMONED.Tag;
+
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildNPCKindValueMessage(
+                MessageType.OpponentsChange, NPCKind.SUMMONED));
+
 		AttachHealthBar(24f, 1f, 1.1f);
-		base.Start ();
 	}
 	
 	// Update is called once per frame
@@ -38,7 +43,7 @@ public class EnemyController : NPC, IKillable
 	{
 		// TODO don't add to score if enemy hits player.
 		ScoreKeeper.addScore (1);
-		Destroy (gameObject);
+        base.Kill();
 	}
 
 	void OnBecameInvisible ()

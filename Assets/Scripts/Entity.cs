@@ -13,10 +13,11 @@ public class Entity : MonoBehaviour
 	{
 		Object healthBarObject = Instantiate (healthBarPrefab, transform.position, Quaternion.identity);
 		GameObject healthBarInstance = healthBarObject as GameObject;
-		
-		healthBarInstance.transform.parent = transform;
+
+        healthBarInstance.transform.parent = transform;
 		healthBarController = healthBarInstance.GetComponent<HealthBarController>();
-		healthBarController.SetColorSprite(healthBarColorSprite);
+        healthBarController.SetFacing(Facing.RIGHT);
+        healthBarController.SetColorSprite(healthBarColorSprite);
 		healthBarController.SetBarSize(barWidth, barHeight);
 		healthBarController.SetYOffset(yOffset);
 	}

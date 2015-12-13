@@ -1,32 +1,47 @@
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class HandleOpponentModule : NPCModule, INPCModule {
 
 	public HandleOpponentBehavior behavior;
-
-	private NPC npcController;
-
-	private string opponentTag;
-	private Facing facing;
+	private Facing facing = Facing.RIGHT;
 
 	private Transform pursuitTarget;
 	private Transform fleeTarget;
-	
-	// Use this for initialization
-	public override void Start ()
+
+
+    protected override Dictionary<MessageType, Action<Message>> GetSupportedMessageMap()
+    {
+        return new Dictionary<MessageType, Action<Message>>()
+        {
+            { MessageType.OpponentsChange, HandleOpponentsChange },
+            { MessageType.VisionEnter, HandleVisionEnter },
+            { MessageType.Faced, HandleFaced }
+        };
+    }
+
+    // Use this for initialization
+    public override void Start ()
 	{
 		base.Start ();
-		npcController = GetComponent<NPC>();
-		opponentTag = npcController.OpponentTag;
-//		facing = npcController.GetFacing();
 	}
 
-	public bool HasAnyTargets()
+    private void HandleOpponentsChange(Message message)
+    {
+        OpponentTag = message.NPCKindValue.Tag;
+    }
+
+    private void HandleFaced(Message message)
+    {
+        facing = message.FacingValue;
+    }
+
+    public bool HasAnyTargets()
 	{
 		return HasPursuitTarget() || HasFleeTarget();
 	}
-	
 	private bool HasPursuitTarget()
 	{
 		return pursuitTarget != null;
@@ -39,20 +54,16 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 	// Update is called once per frame
 	void Update ()
 	{
-		opponentTag = npcController.OpponentTag;
-		facing = npcController.GetFacing();
-
 		if (HasAnyTargets()) {
 			DetermineLoseTargets();
+            NPCMessageBus.TriggerMessage(
+                MessageBuilder.BuildVector2Message(MessageType.MovementAdjustment, GetMovementDirection()));
 		}
 	}
 
 	public Vector2 GetMovementDirection()
 	{
 		Vector3 adjustment = new Vector3(0,0,0);
-		if (tag.Equals (NPCKind.ENEMY)) {
-			Debug.Log (HasPursuitTarget () + " :: " + HasFleeTarget ());
-		}
 		if (pursuitTarget != null) {
 			adjustment += (pursuitTarget.position - transform.position);
 		}
@@ -65,51 +76,65 @@ public class HandleOpponentModule : NPCModule, INPCModule {
 		return normalizedAdjustment;
 	}
 
-	public void HandleSawOpponent(Collider2D other)
+	public void HandleVisionEnter(Message visionEnterMessage)
 	{
-		if (opponentTag == null) {
-			// Hasn't been initialized yet.
-			return;
-		}
-		if (other.CompareTag (opponentTag)) {
-			switch (behavior) {
-			case HandleOpponentBehavior.FIGHT:
-				if (!HasPursuitTarget ()) {
-					pursuitTarget = other.transform;
-				} else {
-					pursuitTarget = WhichIsCloser (other.transform, pursuitTarget);
-				}
-				break;
-			case HandleOpponentBehavior.FLEE:
-				if (!HasFleeTarget()) {
-					fleeTarget = other.transform;
-				} else {
-					fleeTarget = WhichIsCloser (other.transform, fleeTarget);
-				}
-				break;
-			default:
-				break;
-			}
-		}
+        GameObject other = visionEnterMessage.GameObjectValue;
+		if (other.CompareTag (OpponentTag)) {
+            switch (behavior)
+            {
+			    case HandleOpponentBehavior.FIGHT:
+				    if (!HasPursuitTarget ()) {
+					    pursuitTarget = other.transform;
+				    } else {
+					    pursuitTarget = WhichIsCloser (other.transform, pursuitTarget);
+				    }
+				    break;
+			    case HandleOpponentBehavior.FLEE:
+				    if (!HasFleeTarget()) {
+					    fleeTarget = other.transform;
+				    } else {
+					    fleeTarget = WhichIsCloser (other.transform, fleeTarget);
+				    }
+				    break;
+			    default:
+				    break;
+            }
+
+            TargetAcquired();
+        }
 	}
 
 	private void DetermineLoseTargets() {
 		if (HasPursuitTarget() && IsBehindMe (pursuitTarget)) {
 			pursuitTarget = null;
+            TargetLost();
 		}
 		if (HasFleeTarget() && IsBehindMe(fleeTarget)) {
-			fleeTarget = null;
+            fleeTarget = null;
+            TargetLost();
 		}
 	}
 
 	private bool IsBehindMe(Transform other)
 	{
-		if (facing == Facing.RIGHT) {
+        if (facing == Facing.RIGHT) {
 			return other.position.x < transform.position.x;
 		} else {
 			return other.position.x > transform.position.x;
 		}
 	}
+
+    private void TargetAcquired()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.TargetAcquired));
+    }
+
+    private void TargetLost()
+    {
+        NPCMessageBus.TriggerMessage(
+            MessageBuilder.BuildMessage(MessageType.TargetLost));
+    }
 
 	private Transform WhichIsCloser(Transform a, Transform b)
 	{
