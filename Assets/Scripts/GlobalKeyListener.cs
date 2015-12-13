@@ -3,13 +3,27 @@ using System.Collections;
 
 public class GlobalKeyListener : MonoBehaviour {
 
-    bool isPaused = false; 
+    private bool isPaused = false;
+    private GUIStyle pausedStyle = new GUIStyle();
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // Use this for initialization
+    void Start ()
+    {
+        pausedStyle.fontSize = 42;
+        pausedStyle.fontStyle = FontStyle.Bold;
+        pausedStyle.alignment = TextAnchor.MiddleCenter;
+        pausedStyle.normal.textColor = Color.white;
+    }
 
+    void OnGUI()
+    {
+        // TEMP
+        if (isPaused)
+        {
+            GUI.Label(new Rect(400, 250, 100, 100), "PAUSED", pausedStyle);
+        }
+
+    }
     // Update is called once per frame
     void Update()
     {
