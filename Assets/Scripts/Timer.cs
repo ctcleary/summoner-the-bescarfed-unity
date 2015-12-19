@@ -23,6 +23,14 @@ public class Timer
 		timeWaited = 0;
 	}
 
+    public float GetTimeWaited()
+    {
+        return this.timeWaited;
+    }
+
+    /**
+     * Use during Update by calling StartCoroutine(timerName.DoTimer());
+     */
 	public IEnumerator DoTimer ()
 	{
 		timeWaited += Time.deltaTime;
