@@ -32,7 +32,8 @@ public class HealthBarController : MonoBehaviour {
 		renderObjectBlack = CreateRendererObject ("RenderObjectBlack", transform);
 		renderObjectBar = CreateRendererObject ("RenderObjectRed", transform);
 		
-		renderBlack = AddRenderer (renderObjectBlack, black);
+		//renderBlack = AddRenderer (renderObjectBlack, black);
+        AddRenderer(renderObjectBlack, black);
         renderBar = AddRenderer (renderObjectBar, healthColor);
 
 		SetBarScale();
