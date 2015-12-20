@@ -23,6 +23,11 @@ public enum MessageType
     Faced,
     HealthUpdate,
 	Died,
-	Respawned
+	Respawned,
+
+    // Game Control
+    // TODO figure out how to split supported message types
+    Paused,
+    Lost
 }
 

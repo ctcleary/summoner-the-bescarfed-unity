@@ -3,8 +3,9 @@ using System.Collections;
 
 public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttachment
 {
+    private static MessageBus GameMessageBus = GlobalMessageBus.Instance;
 
-	public CombatProperties combatProperties;
+    public CombatProperties combatProperties;
 	public MovementProperties movementProperties;
 
     private bool isDead = false;
@@ -204,7 +205,7 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	public void Hurt (float dmgTaken = 1)
 	{
 		health = health - dmgTaken;
-		if (health <= 0) {
+		if (health <= 0 && !isDead) {
 			Kill ();
 		}
 	}
@@ -220,7 +221,8 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
         if (!isDead) // temp so we only send the log once.
         {
             isDead = true;
-            Debug.Log("You're dead, bro.");
+            GameMessageBus.TriggerMessage(
+                MessageBuilder.BuildMessage(MessageType.Lost));
         }
 	}
 

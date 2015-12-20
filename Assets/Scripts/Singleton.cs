@@ -6,23 +6,20 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour {
 	protected static T _instance;
 
 	// Return the instance of this Singleton
-	public static T instance
-	{
-		get
+	public static T Instance
+    {
+        get
 		{
-			if (_instance == null)
-			{
-				// Make sure we don't already have one.
-				_instance = (T) FindObjectOfType(typeof(T));
+            if (_instance == null)
+            {
+                Debug.LogError("An instance of " + typeof(T) + " was needed but not found.");
+            }
 
-				// If not, make it.
-				if (_instance == null)
-				{
-					Debug.LogError("An instance of " + typeof(T) + " was needed but not found.");
-				}
-			}
-
-			return _instance;
-		}
-	}
+            return _instance;
+        }
+        protected set
+        {
+            _instance = value;
+        }
+    }
 }

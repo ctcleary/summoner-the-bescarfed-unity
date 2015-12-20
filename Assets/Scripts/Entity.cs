@@ -8,7 +8,6 @@ public class Entity : MonoBehaviour
 	protected GameObject healthBarInstance;
 	protected HealthBarController healthBarController;
 
-
 	protected void AttachHealthBar(float barWidth = 24, float barHeight = 2, float yOffset = 1f)
 	{
 		Object healthBarObject = Instantiate (healthBarPrefab, transform.position, Quaternion.identity);

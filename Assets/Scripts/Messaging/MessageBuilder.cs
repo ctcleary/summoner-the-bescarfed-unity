@@ -56,6 +56,13 @@ static class MessageBuilder
         message.NPCKindValue = npcKindValue;
         return message;
     }
-    
+
+
+    public static Message BuildPausedMessage(MessageType messageType, bool boolValue)
+    {
+        Message message = BuildMessage(messageType);
+        message.BoolValue = boolValue;
+        return message;
+    }
 }
 

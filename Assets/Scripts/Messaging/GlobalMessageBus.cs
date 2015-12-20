@@ -1,17 +1,21 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
-public class GlobalMessageBus : Singleton<MonoBehaviour> {
-
-    MessageBus globalMessageBus = new MessageBus();
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+public class GlobalMessageBus {
+    
+    // SINGLETON
+    static MessageBus _instance;
+    public static MessageBus Instance
+    {
+        get
+        {
+            if (_instance == null) {
+                _instance = new MessageBus();
+            }
+            return _instance;
+        }
+    }
+    private GlobalMessageBus() { }
 }

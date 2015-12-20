@@ -61,12 +61,6 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
         };
     }
 
-  //  protected virtual void Awak()
-  //  {
-  //      GetModules();
-		//animator = GetComponent<Animator>();
-
-  //  }
 	// Use this for initialization
 	protected virtual void Start ()
 	{
