@@ -5,9 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GameController : MonoBehaviour, IMessageHandler {
-
-    private ScoreKeeper scoreKeeper;
-
+    
     private MessageBus GameMessageBus = GlobalMessageBus.Instance;
     private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
 
@@ -47,7 +45,6 @@ public class GameController : MonoBehaviour, IMessageHandler {
     void Start()
     {
         Listen();
-        scoreKeeper = ScoreKeeper.Instance;
 
         pauseText.SetActive(false);
         gameOver.SetActive(false);
@@ -57,7 +54,7 @@ public class GameController : MonoBehaviour, IMessageHandler {
     void Update()
     {
 
-        if (isEnded && Input.GetButtonDown("Fire1"))
+        if (isEnded && Input.GetButtonDown("Submit"))
         {
             Time.timeScale = 1;
             Application.LoadLevel(0); // TODO reset all the things... score, player health, etc.
