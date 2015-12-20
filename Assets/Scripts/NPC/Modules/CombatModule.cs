@@ -105,7 +105,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
         if (attackTimer != null) {
 		    if (attackTarget != null && attackTarget.IsAlive()) {
 			    StartCoroutine (attackTimer.DoTimer ());
-		    } else {
+		    } else if (attackTarget != null && !attackTarget.IsAlive()) {
                 ResolveFight();
 				attackTimer.Reset ();
 		    }
@@ -114,6 +114,7 @@ public class CombatModule : NPCModule, INPCModule, IDamageable
 
     private void ResolveFight()
     {
+        attackTarget = null;
         NPCMessageBus.TriggerMessage(
             MessageBuilder.BuildMessage(MessageType.FightResolved));
     }
