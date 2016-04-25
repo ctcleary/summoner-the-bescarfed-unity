@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,12 +54,17 @@ public class GameController : MonoBehaviour, IMessageHandler {
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetButtonDown("Esc"))
+        {
+            Application.Quit();
+        }
 
         if (isEnded && Input.GetButtonDown("Submit"))
         {
             Time.timeScale = 1;
-            Application.LoadLevel(0); // TODO reset all the things... score, player health, etc.
-                                      // instead of reload splash menu
+            // TODO reset all the things... score, player health, etc.
+            // instead of being lazy and reloading splash menu
+            SceneManager.LoadScene(0);
         }
 
         if (Input.GetButtonDown("Pause"))

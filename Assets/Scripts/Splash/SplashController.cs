@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class SplashController : MonoBehaviour {
@@ -18,7 +19,7 @@ public class SplashController : MonoBehaviour {
     {
         if (Input.GetButton("Fire1"))
         {
-            Application.LoadLevel("Level0");
+            SceneManager.LoadScene("Level0");
         }
     }
 

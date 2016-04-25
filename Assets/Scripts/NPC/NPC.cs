@@ -20,9 +20,10 @@ using System.Collections.Generic;
 
 public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealthBarAttachment
 {
-	protected MessageBus NPCMessageBus = new MessageBus ();
+    private static MessageBus GameMessageBus = GlobalMessageBus.Instance;
+    protected MessageBus NPCMessageBus = new MessageBus ();
 
-	protected Dictionary<string, NPCModule> Modules;
+    protected Dictionary<string, NPCModule> Modules;
 	protected Dictionary<string, string> NPCModuleTypes = new Dictionary<string, string> ()
 	{
 		{ "Combat", "CombatModule" },
@@ -47,7 +48,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
 
     private Dictionary<MessageType, Action<Message>> SupportedMessageMap;
 
-    public void Awake()
+    public virtual void Awake()
     {
         SupportedMessageMap = new Dictionary<MessageType, Action<Message>>()
         {
@@ -58,6 +59,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
             { MessageType.Faced, HandleFaced },
             { MessageType.FightEngaged, HandleFightEngaged },
             { MessageType.FightResolved, HandleFightResolved },
+            { MessageType.Lost, StopListen }
         };
     }
 
@@ -109,10 +111,17 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
     private void Listen()
     {
         IMessageHandler thisHandler = (IMessageHandler)this;
-        foreach (MessageType mesageType in SupportedMessageMap.Keys)
+        foreach (MessageType messageType in SupportedMessageMap.Keys)
         {
-            NPCMessageBus.AddMessageListener(mesageType, thisHandler);
+            NPCMessageBus.AddMessageListener(messageType, thisHandler);
         }
+
+        GameMessageBus.AddMessageListener(MessageType.Lost, thisHandler);
+    }
+
+    private void StopListen(Message message)
+    {
+        NPCMessageBus.Reset();
     }
 
     public void HandleMessage(Message message)

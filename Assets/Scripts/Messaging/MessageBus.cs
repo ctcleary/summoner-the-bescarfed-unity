@@ -25,7 +25,7 @@ public class MessageBus
 
 	public void TriggerMessage(Message message) {
 		MessageType messageType = message.MessageType;
-		if (MessageMap.ContainsKey(messageType)) {
+		if (MessageMap != null && MessageMap.ContainsKey(messageType)) {
 			List<IMessageHandler> Listeners = MessageMap [messageType];
 			Listeners.ForEach (delegate(IMessageHandler handlerObject) {
                 handlerObject.HandleMessage(message);

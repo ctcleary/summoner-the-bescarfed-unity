@@ -13,6 +13,8 @@ public abstract class NPCModule : MonoBehaviour, IMessageHandler
 
     public abstract void Reset();
 
+    public virtual void Awake() { }
+
     public virtual void Start()
 	{
 		NPCGameObject = GetComponentInParent<NPC>();
@@ -50,9 +52,9 @@ public abstract class NPCModule : MonoBehaviour, IMessageHandler
     protected void Listen()
     {
         IMessageHandler thisHandler = (IMessageHandler)this;
-        foreach (MessageType mesageType in SupportedMessageMap.Keys)
+        foreach (MessageType messageType in SupportedMessageMap.Keys)
         {
-            NPCMessageBus.AddMessageListener(mesageType, thisHandler);
+            NPCMessageBus.AddMessageListener(messageType, thisHandler);
         }
     }
 

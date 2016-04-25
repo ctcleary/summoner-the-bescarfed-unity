@@ -8,17 +8,20 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 
     public static int villageLives = 20;
 	public static int playerScore = 0;
-    
+
     //private int currVillageLives = villageLives;
     //private int currPlayerScore = playerScore;
 
     public Text livesText;
     public Text scoreText;
     
+    private static AudioSource audioSource;
+    
     void Awake() {
         _instance = this; // Access via .instance
         villageLives = 20;
         playerScore = 0;
+        audioSource = GetComponent<AudioSource>();
     }
     
     void OnGUI()
@@ -37,7 +40,12 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
     }
 
     public static void loseLives(int lives = 1) {
-		villageLives -= lives;
+        if (villageLives >= 1)
+        {
+            villageLives -= lives;
+            audioSource.Play();
+        }
+
 		if (villageLives == 0) {
             GameMessageBus.TriggerMessage(
                 MessageBuilder.BuildMessage(MessageType.Lost));

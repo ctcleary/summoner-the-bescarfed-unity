@@ -5,6 +5,7 @@ public class EnemyController : NPC, IKillable
 {
 
 	private Transform spawnPoint;
+    private bool killedByPlayer = false;
 	
 	// Use this for initialization
 	protected override void Start ()
@@ -39,21 +40,34 @@ public class EnemyController : NPC, IKillable
 		base.HandleTriggerStay2D (other);
 	}
 
-	public override void Kill ()
+
+    public virtual bool KilledByPlayer
+    {
+        get { return killedByPlayer; }
+        set { killedByPlayer = value; }
+    }
+
+    public override void Kill ()
 	{
 		// TODO don't add to score if enemy hits player.
 		ScoreKeeper.addScore (1);
+        //this.killedByPlayer = killedByPlayer;
         base.Kill();
 	}
 
 	void OnBecameInvisible ()
 	{
-		if (combatModule.GetHealth() >= 1) {
+        if (killedByPlayer)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+		if (gameObject != null && combatModule.GetHealth() >= 1) {
 			// Don't lose a villageLives life if the Enemy was
 			// killed by a friendly Summoned!
 			ScoreKeeper.loseLives (1);
-		}
-		Destroy (gameObject);
-
-	}
+        }
+        Destroy(gameObject);
+    }
 }

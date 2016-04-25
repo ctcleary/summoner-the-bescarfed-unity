@@ -23,9 +23,12 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	private Transform summonedSpawnPoint;
 	private Transform summonedGroup;
 
+    private AudioSource audioSource;
 	private Animator anim;
 	private bool isMoving;
     private Facing facing = Facing.RIGHT;
+
+    public AudioClip summonSound;
 
 	private float movementGrowRate = 0.2f;
 	private float movementDecayRate = 0.8f;
@@ -34,7 +37,8 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	void Start ()
 	{
 		anim = GetComponent<Animator> ();
-		health = combatProperties.health;
+        audioSource = GetComponent<AudioSource>();
+        health = combatProperties.health;
 		//attackDmg = combatProperties.attackDmg;
 
 		moveSpeed = movementProperties.moveSpeed;
@@ -196,7 +200,10 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	void OnTriggerEnter2D (Collider2D other)
 	{
 		if (other.CompareTag (NPCKind.ENEMY.Tag)) {
-			other.transform.GetComponent<EnemyController> ().Kill ();
+            // TODO Need to do this in some better way, inter-entity message handler? Conductor?
+            EnemyController enemyController = other.transform.GetComponent<EnemyController>();
+            enemyController.KilledByPlayer = true;
+            enemyController.Kill ();
 			Hurt (1);
 		}
 	}
@@ -212,7 +219,7 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 
     public bool IsAlive()
     {
-        return health <= 0;
+        return health > 0;
     }
 
     // IKillable
@@ -234,6 +241,16 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 			GameObject newSummoned = newObj as GameObject;
 
 			newSummoned.transform.parent = summonedGroup;
+
+            PlaySummonSound();
 		}
 	}
+    
+    private void PlaySummonSound()
+    {
+        if (summonSound != null)
+        {
+            audioSource.PlayOneShot(summonSound);
+        }
+    }
 }

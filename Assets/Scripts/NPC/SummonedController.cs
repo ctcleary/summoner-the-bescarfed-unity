@@ -3,8 +3,8 @@ using System.Collections;
 
 public class SummonedController : NPC, IKillable {
 
-	// Use this for initialization
-	protected override void Start ()
+    // Use this for initialization
+    protected override void Start ()
     {
         base.Start();
         OpponentTag = NPCKind.ENEMY.Tag;
@@ -15,6 +15,7 @@ public class SummonedController : NPC, IKillable {
 
         AttachHealthBar(24f, 1f, 0.5f);
         combatModule.attackAnim = "Summoned_ClawDemon_Attack";
+
     }
 	
 	// Update is called once per frame
