@@ -6,6 +6,13 @@ using System.Collections;
 public class SplashController : MonoBehaviour {
     
     public Text startText;
+    public Text pressToRevealText;
+    public Canvas controlsDetails;
+
+    void Awake()
+    {
+        controlsDetails.enabled = false;
+    }
 
     // Use this for initialization
     void Start ()
@@ -21,6 +28,12 @@ public class SplashController : MonoBehaviour {
         {
             SceneManager.UnloadScene("Level0");
             SceneManager.LoadScene("Level0");
+        }
+
+        if (Input.GetButton("C"))
+        {
+            controlsDetails.enabled = true;
+            pressToRevealText.enabled = false;
         }
     }
 
