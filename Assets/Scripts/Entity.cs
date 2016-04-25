@@ -20,5 +20,26 @@ public class Entity : MonoBehaviour
 		healthBarController.SetBarSize(barWidth, barHeight);
 		healthBarController.SetYOffset(yOffset);
 	}
+
+
+    protected IEnumerator FlashColor()
+    {
+        return FlashColor(Color.red);
+    }
+
+    protected IEnumerator FlashColor(Color color)
+    {
+        SpriteRenderer sr = GetComponentInParent<SpriteRenderer>();
+        if (sr)
+        {
+            sr.color = color;
+            yield return new WaitForSeconds(0.05f);
+            sr.color = Color.white;
+            yield return new WaitForSeconds(0.05f);
+            sr.color = color;
+            yield return new WaitForSeconds(0.05f);
+            sr.color = Color.white;
+        }
+    }
 }
 

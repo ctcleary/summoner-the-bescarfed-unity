@@ -43,7 +43,9 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
         if (villageLives >= 1)
         {
             villageLives -= lives;
-            audioSource.Play();
+            if (audioSource) {
+                audioSource.Play();
+            }
         }
 
 		if (villageLives == 0) {

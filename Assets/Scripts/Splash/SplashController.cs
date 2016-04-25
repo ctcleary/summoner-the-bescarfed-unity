@@ -19,6 +19,7 @@ public class SplashController : MonoBehaviour {
     {
         if (Input.GetButton("Fire1"))
         {
+            SceneManager.UnloadScene("Level0");
             SceneManager.LoadScene("Level0");
         }
     }

@@ -213,6 +213,7 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	public void Hurt (float dmgTaken = 1)
 	{
 		health = health - dmgTaken;
+        StartCoroutine(FlashColor(Color.red));
         PlayHurtSound();
 
         if (health <= 0 && !isDead) {
