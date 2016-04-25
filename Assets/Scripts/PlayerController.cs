@@ -29,6 +29,7 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
     private Facing facing = Facing.RIGHT;
 
     public AudioClip summonSound;
+    public AudioClip hurtSound;
 
 	private float movementGrowRate = 0.2f;
 	private float movementDecayRate = 0.8f;
@@ -212,7 +213,9 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
 	public void Hurt (float dmgTaken = 1)
 	{
 		health = health - dmgTaken;
-		if (health <= 0 && !isDead) {
+        PlayHurtSound();
+
+        if (health <= 0 && !isDead) {
 			Kill ();
 		}
 	}
@@ -245,12 +248,20 @@ public class PlayerController : Entity, IDamageable, IKillable, IHealthBarAttach
             PlaySummonSound();
 		}
 	}
-    
+
     private void PlaySummonSound()
     {
         if (summonSound != null)
         {
             audioSource.PlayOneShot(summonSound);
+        }
+    }
+
+    private void PlayHurtSound()
+    {
+        if (hurtSound != null)
+        {
+            audioSource.PlayOneShot(hurtSound);
         }
     }
 }
