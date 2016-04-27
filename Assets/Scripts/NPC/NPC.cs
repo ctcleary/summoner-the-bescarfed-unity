@@ -50,6 +50,8 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
 
     public virtual void Awake()
     {
+        //SupportedMessageMap = new Dictionary<MessageType, Action<Message>>();
+        
         SupportedMessageMap = new Dictionary<MessageType, Action<Message>>()
         {
             { MessageType.Died, HandleDied },
@@ -206,6 +208,7 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
         // Should be overridden in most cases. e.g. object pooling
         if (this != null)
         {
+            StopListen(new Message());
             Destroy(gameObject);
         }
 	}

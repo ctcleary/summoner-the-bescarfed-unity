@@ -28,6 +28,7 @@ public enum MessageType
     // Game Control
     // TODO figure out how to split supported message types
     Paused,
-    Lost
+    Lost,
+    Muted
 }
 

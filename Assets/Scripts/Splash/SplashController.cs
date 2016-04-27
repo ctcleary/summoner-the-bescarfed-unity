@@ -8,6 +8,7 @@ public class SplashController : MonoBehaviour {
     public Text startText;
     public Text pressToRevealText;
     public Canvas controlsDetails;
+    public AudioSource BGM;
 
     void Awake()
     {
@@ -34,6 +35,16 @@ public class SplashController : MonoBehaviour {
         {
             controlsDetails.enabled = true;
             pressToRevealText.enabled = false;
+        }
+
+        if (Input.GetButton("Mute"))
+        {
+            if (BGM.enabled) {
+                BGM.enabled = false;
+            } else {
+                BGM.enabled = true;
+                BGM.Play();
+            }
         }
     }
 

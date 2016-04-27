@@ -18,6 +18,7 @@ public class BGM : MonoBehaviour, IMessageHandler {
         }
 
         GameMessageBus.AddMessageListener(MessageType.Lost, this);
+        GameMessageBus.AddMessageListener(MessageType.Muted, this);
 
     }
 
@@ -26,6 +27,8 @@ public class BGM : MonoBehaviour, IMessageHandler {
         if (message.MessageType == MessageType.Lost)
         {
             HandleGameOverScreen();
+        } else if (message.MessageType == MessageType.Muted) {
+            HanleMutedCommand(message);
         }
 
     }
@@ -37,6 +40,17 @@ public class BGM : MonoBehaviour, IMessageHandler {
         {
             audioSource.clip = gameOverMusic;
             audioSource.Play();
+        }
+    }
+
+    private void HanleMutedCommand(Message message)
+    {
+        if (message.BoolValue == true)
+        {
+            audioSource.enabled = true;
+            audioSource.Play();
+        } else {
+            audioSource.enabled = false;
         }
     }
 }

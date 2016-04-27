@@ -15,8 +15,10 @@ public class GameController : MonoBehaviour, IMessageHandler {
 
     private bool isEnded = false;
     public GameObject gameOver;
-    public Text score;
-    public Text time;
+    //public Text score;
+    //public Text time;
+
+    public AudioSource BGM;
 
     public void Awake()
     {
@@ -69,9 +71,35 @@ public class GameController : MonoBehaviour, IMessageHandler {
 
         if (Input.GetButtonDown("Pause"))
         {
-            isPaused = !isPaused;
-            GameMessageBus.TriggerMessage(
-                MessageBuilder.BuildPausedMessage(MessageType.Paused, isPaused));
+            PauseUnpause();
+        }
+
+        if (Input.GetButtonDown("Mute"))
+        {
+            MuteUnmute();
+        }
+    }
+
+    private void PauseUnpause()
+    {
+        isPaused = !isPaused;
+        pauseText.SetActive(isPaused);
+        if (isPaused) {
+            BGM.Pause();
+        } else {
+            BGM.UnPause();
+        }
+        GameMessageBus.TriggerMessage(
+            MessageBuilder.BuildPausedMessage(MessageType.Paused, isPaused));
+    }
+
+    private void MuteUnmute()
+    {
+        bool doMute = (AudioListener.volume != 0);
+        if (doMute) {
+            AudioListener.volume = 0;
+        } else {
+            AudioListener.volume = 1;
         }
     }
 
