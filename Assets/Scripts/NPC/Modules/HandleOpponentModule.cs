@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class HandleOpponentModule : NPCModule, INPCModule {
+public class HandleOpponentModule : NPCModule {
     
 	private Transform pursuitTarget;
 	private Transform fleeTarget;

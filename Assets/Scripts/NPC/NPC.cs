@@ -18,7 +18,7 @@ using System.Collections.Generic;
  * Rework NPC to use the MessageBus object for all inter-component communication.
  */
 
-public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealthBarAttachment
+public class NPC : Entity, IDamageable, IKillable, IMessageHandler, IHealthBarAttachment
 {
     private static MessageBus GameMessageBus = GlobalMessageBus.Instance;
     protected MessageBus NPCMessageBus = new MessageBus ();
@@ -176,19 +176,13 @@ public class NPC : Entity, INPC, IDamageable, IKillable, IMessageHandler, IHealt
     protected virtual void Update ()
 	{
     }
-
-	// INPC
+    
 	public virtual void Reset ()
 	{
 		foreach (NPCModule module in Modules.Values) {
 			 module.Reset();
 		}
 	}
-
-    //public virtual void Attack ()
-    //{
-    //       combatModule.Attack();
-    //}
 
     // IDamageable
     public virtual void Hurt(float dmgTaken)

@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class EnemyController : NPC, IKillable
-{
+public class EnemyController : NPC, IKillable {
 
 	private Transform spawnPoint;
     private bool killedByPlayer = false;
@@ -25,10 +24,6 @@ public class EnemyController : NPC, IKillable
 	{
 		base.Update ();
 	}
-	// INPC
-	//public override void Reset() {}
-	//public void SetAttackTarget(IDamageable attackTarget) {}
-	//public void Attack() {}
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
@@ -69,5 +64,11 @@ public class EnemyController : NPC, IKillable
 			ScoreKeeper.loseLives (1);
         }
         Destroy(gameObject);
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        killedByPlayer = false;
     }
 }

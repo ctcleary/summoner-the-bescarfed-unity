@@ -12,7 +12,7 @@ public class CombatProperties
 	public float attackSpd;
 }
 
-public class CombatModule : NPCModule, INPCModule, IDamageable
+public class CombatModule : NPCModule, IDamageable
 {
 	
 	public CombatProperties combatProperties;

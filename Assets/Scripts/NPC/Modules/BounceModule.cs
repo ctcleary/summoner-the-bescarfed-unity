@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class BounceModule : NPCModule, INPCModule {
+public class BounceModule : NPCModule {
 
 	private bool goUp;
     private Rigidbody2D rigidbodyRef;

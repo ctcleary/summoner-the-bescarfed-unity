@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class AudioModule : NPCModule, INPCModule
+public class AudioModule : NPCModule
 {
     protected AudioSource audioSource;
     public AudioClip attackSound;
